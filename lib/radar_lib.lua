@@ -1,22 +1,33 @@
 local radarLib = {}
 local component = require "component"
-local radar = component.radar
+
+local radars = {}
+
+function radarLib.init()
+    for address, _ in pairs(component.list("radar")) do
+        table.insert(radars, component.proxy(address))
+    end
+end
 
 function radarLib.getPlayers(maxRadarUsers)
-    local temp = radar.getPlayers()
     local players = {}
-    for i = 1, #temp do
-        players[i] = temp[i].name
-    end
-    table.sort(players)
-    for i = 1, maxRadarUsers do
-        if players[i] ~= nil then
-            players[i] = players[i]
-        else
-            players[i] = ""
+    for i = 1, #radars do
+        local radarPlayers = radars[i].getPlayers()
+        for j = 1, #radarPlayers do
+            players[radarPlayers[j].name] = true
         end
     end
-    return players
+
+    local playerNames = {}
+    local i = 0
+    for playerName, _ in pairs(players) do
+        if i == maxRadarUsers then
+            break
+        end
+        table.insert(playerNames, playerName)
+        i = i + 1
+    end
+    return playerNames
 end
 
 return radarLib
