@@ -1,11 +1,9 @@
-local zlib = {}
-local component = require "component"
---local computer = require "computer"
---local serialization = require "serialization"
---local internet = require "internet"
-local unicode = require "unicode"
+local lib = {}
+local component = require("component")
+local unicode = require("unicode")
+local term = require("term")
+local colors = require("lib.colors")
 local gpu = component.gpu
-local colors = require "lib.colors"
 
 local defaultBackground = colors.black;
 local defaultForeground = colors.white;
@@ -16,61 +14,55 @@ local function resetColors()
 end
 
 local function setForeground(color)
-    if color ~= nil then
+    if color then
         gpu.setForeground(color)
     end
 end
 
 local function setBackground(color)
-    if color ~= nil then
+    if color then
         gpu.setBackground(color)
     end
 end
 
-local function setResolution(w, h)
+function lib.init(w, h, defForeground, defBackground)
+    term.clear()
     gpu.setResolution(w or 45, h or 15)
-end
-
-function zlib.init(defForeground, defBackground) -- рамка
     defaultForeground = defForeground
     defaultBackground = defBackground
 end
 
-function zlib.mainFrame(w, h, text, frameColor) -- рамка
-    setResolution(w, h)
-    setForeground(frameColor)
-    gpu.set(1, 1, "╔")
-    gpu.set(1, h, "╚")
-    gpu.set(w, 1, "╗")
-    gpu.set(w, h, "╝")
-    gpu.fill(2, 1, w - 2, 1, "═")
-    gpu.fill(2, h, w - 2, 1, "═")
-    gpu.fill(1, 2, 1, h - 2, "║")
-    gpu.fill(w, 2, 1, h - 2, "║")
-    gpu.set(w / 2 - (unicode.len(text) / 2) - 2, 1, "[" .. text .. "]")
-    gpu.set(w / 2, h, "[orange_juice_]")
-    resetColors()
-end
-
-function zlib.text(x, y, text, color) --text
+function lib.text(x, y, text, color) --text
     setForeground(color)
     gpu.set(x, y, text)
     resetColors()
 end
 
---function zlib.hFill(x, y, w, symbol, color) --fill
---    setForeground(color)
---    gpu.fill(x, y, x + w, y, symbol)
---    resetColors()
---end
---
---function zlib.vFill(x, y, h, symbol, color) --fill
---    setForeground(color)
---    gpu.fill(x, y, x, y, symbol)
---    resetColors()
---end
+function lib.rectangle(x, y, h, w, color) --filled rectangle
+    setBackground(color)
+    gpu.fill(x, y, h, w, ' ')
+    resetColors()
+end
 
-function zlib.line(type, x, y, h, color) -- линия горизонт/вертикаль
+function lib.hFill(x, y, w, symbol, color) --fill
+    setForeground(color)
+    gpu.fill(x, y, w, y, symbol)
+    resetColors()
+end
+
+function lib.vFill(x, y, h, symbol, color) --fill
+    setForeground(color)
+    gpu.fill(x, y, x, h, symbol)
+    resetColors()
+end
+
+function lib.fill(x, y, w, h, symbol, color) --fill
+    setForeground(color)
+    gpu.fill(x, y, w, h, symbol)
+    resetColors()
+end
+
+function lib.line(type, x, y, h, color) -- линия горизонт/вертикаль
     setForeground(color)
     if type == "y" then
         gpu.fill(x, y + 1, 1, h - 2, "|")
@@ -81,7 +73,7 @@ function zlib.line(type, x, y, h, color) -- линия горизонт/верт
     resetColors()
 end
 
-function zlib.cube(x, y, w, h, color)
+function lib.frame(x, y, w, h, color)
     setForeground(color)
     gpu.set(x, y, "╔")
     gpu.set(x, y + h, "╚")
@@ -94,7 +86,7 @@ function zlib.cube(x, y, w, h, color)
     resetColors()
 end
 
-function zlib.bar(x, y, fill, w, type, color) -- прогрессбар
+function lib.bar(x, y, fill, w, type, color) -- прогрессбар
     setBackground(0xF0F0F0)
     gpu.fill(x, y - 1, 1, w, "▄")
     gpu.fill(x, y + 1, 1, w, "▄")
@@ -107,7 +99,7 @@ function zlib.bar(x, y, fill, w, type, color) -- прогрессбар
     resetColors()
 end
 
-function zlib.button(x, y, text, bcolor, tcolor) --кнопка
+function lib.button(x, y, text, bcolor, tcolor) --кнопка
     setForeground(bcolor)
     local h = 2
     local w = 3 + unicode.len(text)
@@ -124,4 +116,4 @@ function zlib.button(x, y, text, bcolor, tcolor) --кнопка
     resetColors()
 end
 
-return zlib
+return lib

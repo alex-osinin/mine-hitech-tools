@@ -46,6 +46,14 @@ function meLib.getItemQuantity(itemInfo)
     return item[1].size
 end
 
+function meLib.getCraftables(itemInfo)
+    local craftables, _, _ = me.getCraftables(itemInfo)
+    if craftables then
+        return craftables[1]
+    end
+    return nil
+end
+
 --function zlib.itemSize(name, dmg) --item size in me network
 --    for _, i in pairs(me.getAvailableItems()) do
 --        if i.fingerprint.id == name and i.fingerprint.dmg == dmg then
@@ -54,16 +62,5 @@ end
 --    end
 --    return 0
 --end
-
-function meLib.formatItemQuantity(quantity)
-    local number = tonumber(quantity)
-    if number == nil or number < 10000 then
-        return quantity
-    elseif number < 1000000 then
-        return math.floor(number / 1000) .. " k"
-    else
-        return string.format("%.1f", tostring(number / 1000000)) .. " M"
-    end
-end
 
 return meLib

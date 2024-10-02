@@ -1,6 +1,5 @@
 local tpsLib = {}
 local fs = require("filesystem")
---local c = require("component")
 local timeConstant = 2
 local num = 3
 local file = "/tmp/DEFG"
@@ -14,10 +13,8 @@ end
 
 function tpsLib.calc()
     local avgTPS = 0
-    local realTimeOld
-    local realTimeNew
-    local realTimeDiff
-    for i = 1, num do
+    local realTimeOld, realTimeNew, realTimeDiff
+    for _ = 1, num do
         realTimeOld = time()
         os.sleep(timeConstant)
         realTimeNew = time()
@@ -40,10 +37,6 @@ function tpsLib.colorByTPS(tps)
         --gpu.setForeground(0x7fcc19)
     end
     return color
-end
-
-function tpsLib.format(tps)
-    return string.format("%.1f", tostring(tps))
 end
 
 return tpsLib
