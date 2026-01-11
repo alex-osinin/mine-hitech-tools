@@ -21,16 +21,16 @@ local function init()
     local mainFrameColor = 0x3F3ACA
     gui.mainFrame(W, H, "Region Viwer", mainFrameColor)
     --рамка для сети
-    gui.cube(2, 22, 36, 8, mainFrameColor)
+    gui.frame(2, 22, 36, 8, mainFrameColor)
     gui.text(4, 22, "[Инфо]", colors.cyan)
     --рамка для процессоров
-    gui.cube(2, 2, 36, 19, mainFrameColor)
+    gui.frame(2, 2, 36, 19, mainFrameColor)
     gui.text(4, 2, "[Процессоры создания]", colors.cyan)
     --рамка для игроков
-    gui.cube(40, 2, 36, 14, mainFrameColor)
+    gui.frame(40, 2, 36, 14, mainFrameColor)
     gui.text(42, 2, "[Игроки]", colors.cyan)
     --рамка радара
-    gui.cube(40, 17, 36, 13, mainFrameColor)
+    gui.frame(40, 17, 36, 13, mainFrameColor)
     gui.text(42, 17, "[Радар]", colors.cyan)
 end
 
@@ -54,6 +54,20 @@ local function updateTPS()
         os.sleep(0.1)
     end
 end
+
+ local function updateRadar()
+     local maxRadarUsers = 9
+     while true do
+         local currentPlayers = radarLib.getPlayers(maxRadarUsers)
+         for i = 1, maxRadarUsers do
+             gui.text(43, i + 18, "               ")
+             if currentPlayers[i] ~= nil then
+                 gui.text(43, i + 18, currentPlayers[i])
+             end
+         end
+         os.sleep(1)
+     end
+ end
 
 -- local function updatePlayers()
 --     while true do
@@ -98,31 +112,17 @@ end
 --     end
 -- end
 
--- local function updateRadar()
---     local maxRadarUsers = 9
---     while true do
---         local currentPlayers = radarLib.getPlayers(maxRadarUsers)
---         for i = 1, maxRadarUsers do
---             gui.text(43, i + 18, "               ")
---             if currentPlayers[i] ~= nil then
---                 gui.text(43, i + 18, currentPlayers[i])
---             end
---         end
---         os.sleep(1)
---     end
--- end
-
 init()
 local energyThread = thread.create(updateEnergy)
 -- local meThread = thread.create(updateMeInfo)
 -- local playersThread = thread.create(updatePlayers)
 local tpsThread = thread.create(updateTPS)
--- local radarThread = thread.create(updateRadar)
+local radarThread = thread.create(updateRadar)
 
 thread.waitForAll({
     energyThread,
 --     meThread,
 --     playersThread,
-    tpsThread
---     radarThread
+    tpsThread,
+    radarThread
 })

@@ -12,16 +12,17 @@ local function time()
 end
 
 function tpsLib.calc()
-    local avgTPS = 0
+    local allTPS = 0
     local realTimeOld, realTimeNew, realTimeDiff
     for _ = 1, num do
         realTimeOld = time()
         os.sleep(timeConstant)
         realTimeNew = time()
         realTimeDiff = realTimeNew - realTimeOld
-        avgTPS = avgTPS + 20000 * timeConstant / realTimeDiff
+        allTPS = allTPS + 20000 * timeConstant / realTimeDiff
     end
-    return avgTPS / num
+    local avgTPS = allTPS / num
+    return avgTPS < 20 and avgTPS or 20
 end
 
 function tpsLib.colorByTPS(tps)

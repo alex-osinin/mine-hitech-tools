@@ -1,6 +1,6 @@
 local chatHandler = {}
 
-local reactorLib = require("lib.reactor_lib")
+local reactorLib = require("lib.ic_reactor_lib")
 local system = require("lib.system_lib")
 local component = require("component")
 local event = require("event")
@@ -16,6 +16,8 @@ local function help()
     chatbot.say("@reboot  - Перезагрузка ПК")
     chatbot.say("Made by orange_juice_")
 end
+--//fixme тпс по команде
+--игроки рядом
 
 local function initReactors()
     chatbot.say("§e§lИнициализирую реакторы")
@@ -36,7 +38,7 @@ end
 
 local function exit()
     chatbot.say("§e§lЗакрываем лавочку")
-    system.exit()
+    os.exit(0)
 end
 
 local function reboot()

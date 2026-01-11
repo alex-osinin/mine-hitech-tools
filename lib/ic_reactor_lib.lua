@@ -1,48 +1,22 @@
 local reactorLib = {}
 
-local fs = require("filesystem")
+--local fs = require("filesystem")
 local component = require("component")
 local colors = require("lib.colors")
 local gui = require("lib.monitor_gui_lib")
 
-local dataPath = "/home/data"
-local fileName = "reactorsData"
-local dataFilePath = dataPath .. "/" .. fileName
+--local dataPath = "/home/data"
+--local fileName = "reactorsData"
+--local dataFilePath = dataPath .. "/" .. fileName
 ReactorState = { WORKING = "1", STOPPED = "0", ERROR = "-1" }
 
 local reactorComponents = {}
 local reactorsEnabled
 
-function reactorLib.loadData()
-    reactorComponents = {}
-    local file = io.open(dataFilePath, "r")
-    if file then
-        for address in file:lines() do
-            --local number, address = string.gmatch(line, "([^ ]+)")
-            --local parsed = string.gmatch(line, "([^ ]+)")
-            local reactorComponent = component.proxy(address)
-            reactorComponent = reactorComponent or 0
-            reactorComponents[#reactorComponents + 1] = reactorComponent
-            --table.insert(reactorComponents, reactorComponent)
-            --device[#device + 1] = component.proxy(line)
-        end
-        file:close()
-    end
-end
-
 function reactorLib.initData()
-    if not fs.isDirectory(dataPath) then
-        fs.makeDirectory(dataPath)
-    end
-    local file = io.open(dataFilePath, "w")
-    if file then
-        --local i = 0
-        for address, _ in pairs(component.list("reactor_chamber")) do
-            --file:write(i, " ", k, "\n")
-            file:write(address, "\n")
-            --i = i + 1
-        end
-        file:close()
+    reactorComponents = {}
+    for address, _ in pairs(component.list("reactor_chamber")) do
+        table.insert(reactorComponents, component.proxy(address))
     end
 end
 

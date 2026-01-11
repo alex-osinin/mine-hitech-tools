@@ -27,6 +27,7 @@ function radarLib.getPlayers(maxRadarUsers)
         table.insert(playerNames, playerName)
         i = i + 1
     end
+    table.sort(playerNames)
     return playerNames
 end
 

@@ -21,11 +21,11 @@ local function init()
     gui.init(COLORS.white, COLORS.black)
     local mainFrameColor = 0x3F3ACA
     gui.mainFrame(W, H, "Region Viwer", mainFrameColor)
-    gui.cube(2, 2, 36, 6, mainFrameColor)   --рамка для сети
+    gui.frame(2, 2, 36, 6, mainFrameColor)   --рамка для сети
     gui.text(4, 2, "&B[Энерго-система]")
-    gui.cube(2, 9, 36, 21, mainFrameColor)  --рамка для процессоров
+    gui.frame(2, 9, 36, 21, mainFrameColor)  --рамка для процессоров
     gui.text(4, 9, "&B[Процессоры создания]")
-    gui.cube(40, 2, 36, 28, mainFrameColor) --рамка для игроков
+    gui.frame(40, 2, 36, 28, mainFrameColor) --рамка для игроков
     gui.text(42, 2, "&B[Игроки]")
 end
 
@@ -38,7 +38,6 @@ local function updateEnergy()
 end
 
 local function updatePlayers()
-    local temp
     computer.removeUser(admin)
     for i = 1, #players do
         gui.text(43, i + 3, "&f" .. players[i][1] .. ":")
@@ -61,20 +60,21 @@ local function updatePlayers()
 end
 
 local function updateMeInfo()
-    local temp, cpus, totalFree, totalBusy = meLib.getMeInfo()
+    local tempText
+    local cpus, totalFree, totalBusy = meLib.getMeInfo()
     for i = 1, #cpus do
         if not cpus[i].busy then
-            temp = "&fПроцессор #" .. i .. ": &aСвободен"
+            tempText = "&fПроцессор #" .. i .. ": &aСвободен"
         else
-            temp = "&fПроцессор #" .. i .. ": &cВ работе"
+            tempText = "&fПроцессор #" .. i .. ": &cВ работе"
         end
-        gui.text(4, i + 9, temp)
+        gui.text(4, i + 9, tempText)
     end
     gui.text(20, 29, "         ")
-    temp = "&a" .. totalFree .. " &9/&c " .. totalBusy
-    gui.text(20, 29, temp)
-    temp = "&1Всего: &a" .. #cpus
-    gui.text(27, 29, temp)
+    tempText = "&a" .. totalFree .. " &9/&c " .. totalBusy
+    gui.text(20, 29, tempText)
+    tempText = "&1Всего: &a" .. #cpus
+    gui.text(27, 29, tempText)
 end
 
 init()

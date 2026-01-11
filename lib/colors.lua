@@ -9,5 +9,6 @@ COLORS = {
     purple = 0x8b00ff,
     grey = 0x878787
 }
-
+-- fixme заменить это на встроенную либу color
+--  https://ocdoc.cil.li/api:colors
 return COLORS
