@@ -6,7 +6,7 @@ function service.init()
     fluxStorage = components.requireComponent("flux_storage")
 end
 
-function service.getName()
+local function getName()
     return fluxStorage.getNetworkInfo().name
 end
 
@@ -15,6 +15,7 @@ local function getInputEnergy()
 end
 
 function service.updateState(state)
+    state.energy.networkName = getName()
     state.energy.input = getInputEnergy()
 end
 

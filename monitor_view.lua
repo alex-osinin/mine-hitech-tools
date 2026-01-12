@@ -41,7 +41,10 @@ local state = {
         statuses = {},
         lapis = -1
     },
-    energy = { input = 0 },
+    energy = {
+        networkName = 0,
+        input = 0
+    },
     tps = { value = 0 },
     radar = { players = {} }
 }

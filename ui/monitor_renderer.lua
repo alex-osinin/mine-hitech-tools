@@ -3,7 +3,6 @@ local config = require("config")
 local gui = require("ui.monitor_gui")
 
 local reactorLib = require("service.void_reactor_lib")
-local fluxLib = require("service.energy_service")
 
 local tps = require("service.tps_counter")
 local colors = require("util.colors")
@@ -28,7 +27,7 @@ function renderer.initUI(log)
     -- рамка для сети
     gui.frame(1, H - 10, math.floor(W / 2) - 1, 10, frameColor)
     gui.text(4, 21, "[Инфо]", colors.cyan)
-    gui.text(4, 23, "Имя сети: " .. fluxLib.getName(), colors.green)
+    gui.text(4, 23, "Имя сети:", colors.green)
     gui.text(4, 25, "Энергия:", colors.green)
     gui.text(4, 27, "TPS:", colors.green)
 
@@ -69,6 +68,8 @@ local function renderReactors(state)
 end
 
 local function renderEnergy(state)
+    local networkName = string.format("%-37s", state.energy.networkName or "")
+    gui.text(15, 23, networkName, colors.green)
     local formattedEnergy = string.format("%-37s", formatter.toDisplaySize(state.energy.input, 3, "Rf/t"))
     gui.text(14, 25, formattedEnergy, colors.green)
 end
