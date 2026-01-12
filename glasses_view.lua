@@ -11,12 +11,12 @@
 local term = require "term"
 local thread = require "thread"
 local component = require "component"
-local tpsLib = require "tps_lib"
-local guiLib = require "glasses_gui_lib"
-local radarLib = require "radar_lib"
-local fluxLib = require "flux_lib"
-local meLib = require "me_lib"
-local timeLib = require "time_lib"
+local tpsLib = require "service.tps"
+local guiLib = require "ui.glasses_gui"
+local radarLib = require "service.radar_service"
+local fluxLib = require "service.energy_service"
+local meLib = require "service.storage_service"
+local timeLib = require "util.time_lib"
 
 itemsInfo = {
     { name = "ic2:nuclear",         meta = 3 },

@@ -1,8 +1,12 @@
-local meLib = {}
-local component = require "component"
-local me = component.me_controller
+local service = {}
+local components = require("util.components")
+local me
 
-function meLib.getCPUInfo()
+function service.init()
+    me = components.requireComponent("me_controller")
+end
+
+function service.getCPUInfo()
     local cpus = me.getCpus()
     local totalFree = 0
     local totalBusy = 0
@@ -25,7 +29,7 @@ local function searchItem(itemsInNetwork, itemInfo)
     return 0
 end
 
-function meLib.getItemsQuantity(itemInfos)
+function service.getItemsQuantity(itemInfos)
     local itemsInNetwork = me.getItemsInNetwork()
     local sizes = {}
     for i = 1, #itemInfos do
@@ -38,7 +42,7 @@ function meLib.getItemsQuantity(itemInfos)
     return sizes
 end
 
-function meLib.getItemQuantity(itemInfo)
+function service.getItemQuantity(itemInfo)
     local item, _, _ = me.getItemsInNetwork(itemInfo)
     if not item then
         return -1
@@ -46,7 +50,7 @@ function meLib.getItemQuantity(itemInfo)
     return item[1].size
 end
 
-function meLib.getCraftables(itemInfo)
+function service.getCraftables(itemInfo)
     local craftables, _, _ = me.getCraftables(itemInfo)
     if craftables then
         return craftables[1]
@@ -63,4 +67,4 @@ end
 --    return 0
 --end
 
-return meLib
+return service

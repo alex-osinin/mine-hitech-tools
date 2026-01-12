@@ -1,8 +1,8 @@
-local guiLib = {}
+local lib = {}
 local component = require "component"
 local glasses = component.glasses
 
-function guiLib.createItem(name, meta, x, y)
+function lib.createItem(name, meta, x, y)
     local icon = glasses.addItem2D()
     icon.setItem(name, meta)
     icon.addScale(32, 32, 1)
@@ -10,7 +10,7 @@ function guiLib.createItem(name, meta, x, y)
     return icon
 end
 
-function guiLib.createBox(width, height, x, y)
+function lib.createBox(width, height, x, y)
     local box = glasses.addBox2D()
     box.setSize(width, height)
     box.addTranslation(x, y, 0)
@@ -19,7 +19,7 @@ function guiLib.createBox(width, height, x, y)
     return box
 end
 
-function guiLib.createText(x, y)
+function lib.createText(x, y)
     local text = glasses.addText2D()
     text.setFont("Monospaced.bold")
     text.setFontSize(15)
@@ -28,8 +28,8 @@ function guiLib.createText(x, y)
     return text
 end
 
-function guiLib.removeAll()
+function lib.removeAll()
     glasses.removeAll()
 end
 
-return guiLib
+return lib

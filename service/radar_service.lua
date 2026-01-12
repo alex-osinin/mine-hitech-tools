@@ -1,15 +1,14 @@
-local radarLib = {}
-local component = require "component"
+local service = {}
+local config = require("config")
+local components = require("util.components")
 
 local radars = {}
 
-function radarLib.init()
-    for address, _ in pairs(component.list("radar")) do
-        table.insert(radars, component.proxy(address))
-    end
+function service.init()
+    radars = components.getAll("radar")
 end
 
-function radarLib.getPlayers(maxRadarUsers)
+local function getPlayers()
     local players = {}
     for i = 1, #radars do
         local radarPlayers = radars[i].getPlayers()
@@ -21,7 +20,7 @@ function radarLib.getPlayers(maxRadarUsers)
     local playerNames = {}
     local i = 0
     for playerName, _ in pairs(players) do
-        if i == maxRadarUsers then
+        if i == config.radar.maxUsers then
             break
         end
         table.insert(playerNames, playerName)
@@ -31,4 +30,8 @@ function radarLib.getPlayers(maxRadarUsers)
     return playerNames
 end
 
-return radarLib
+function service.updateState(state)
+    state.radar.players = getPlayers() or {}
+end
+
+return service

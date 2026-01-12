@@ -1,16 +1,16 @@
 Метод: hasWork, 				документация: function():boolean 				-- Проверяет, работает ли реактор.
+Метод: activate, 				документация: function():boolean 				-- Включает реактор.
+Метод: deactivate, 				документация: function():boolean 				-- Выключает реактор.
+Метод: setActiveCooling,		документация: function(state:boolean):boolean 	-- Включает или выключает охлаждение.
 Метод: getReactorComponents, 	документация: function():table 					-- Получает информацию о всех компонентах схемы реактора.
 Метод: getReactorLevel, 		документация: function():table 					-- Уровень реактора.
 Метод: getTemperature, 			документация: function():int 					-- Получает текущую температуру реактора.
 Метод: getMaxTemperature, 		документация: function():int 					-- Получает максимальную температуру реактора.
 Метод: getFluidCoolantConsume, 	документация: function():int 					-- Получает потребление охлаждающей жидкости в секунду.
 Метод: isFuelFilterActive, 		документация: function():boolean 				-- Проверяет, активен ли фильтр топлива.
-Метод: deactivate, 				документация: function():boolean 				-- Выключает реактор.
-Метод: setActiveCooling,		документация: function(state:boolean):boolean 	-- Включает или выключает охлаждение.
 Метод: getReactorComponent, 	документация: function(slot:int):table 			-- Получает информацию о компоненте схемы в указанном слоте.
 Метод: getMaxFluidCoolant, 		документация: function():int 					-- Получает максимальный объём внутреннего буфера охлаждения.
 Метод: getFluidCoolant, 		документация: function():int 					-- Получает текущий объём внутреннего буфера охлаждения.
-Метод: activate, 				документация: function():boolean 				-- Включает реактор.
 Метод: getCoolantItem, 			документация: function():int):table 			-- Получает информацию о предмете охлаждения в указанном слоте.
 Метод: isActiveCooling, 		документация: function():boolean 				-- Проверяет, активно ли охлаждение.
 Метод: getEnergyGeneration, 	документация: function():long 					-- Получает текущую генерацию энергии.

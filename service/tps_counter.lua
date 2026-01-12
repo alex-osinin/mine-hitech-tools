@@ -1,4 +1,4 @@
-local tpsLib = {}
+local service = {}
 local fs = require("filesystem")
 local timeConstant = 2
 local num = 3
@@ -11,7 +11,7 @@ local function time()
     return (fs.lastModified(file))
 end
 
-function tpsLib.calc()
+local function calc()
     local allTPS = 0
     local realTimeOld, realTimeNew, realTimeDiff
     for _ = 1, num do
@@ -25,19 +25,20 @@ function tpsLib.calc()
     return avgTPS < 20 and avgTPS or 20
 end
 
-function tpsLib.colorByTPS(tps)
+function service.updateState(state)
+    state.tps.value = calc()
+end
+
+function service.colorizeTPS(tps)
     local color
     if tps <= 10 then
         color = COLORS.red
-        --gpu.setForeground(0xcc4c4c)
     elseif tps <= 15 then
         color = COLORS.yellow
-        --gpu.setForeground(0xf2b233)
     elseif tps > 15 then
         color = COLORS.green
-        --gpu.setForeground(0x7fcc19)
     end
     return color
 end
 
-return tpsLib
+return service

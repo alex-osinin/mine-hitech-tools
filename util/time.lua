@@ -2,10 +2,10 @@ local DATE_FORMAT = '%Y.%m.%d %H:%M:%S'
 local TIME_ZONE = 2
 local FILE = '/tmp/UNIX123.tmp'
 local t_correction = TIME_ZONE * 3600
-local timeLib = {}
+local service = {}
 local fs = require("filesystem")
 
-function timeLib.getTime()
+function service.realDateTime()
     local file = io.open(FILE, 'w')
     file:write('')
     file:close()
@@ -14,4 +14,4 @@ function timeLib.getTime()
     return os.date(DATE_FORMAT, lastmod)
 end
 
-return timeLib
+return service

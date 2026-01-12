@@ -2,7 +2,7 @@ local lib = {}
 local component = require("component")
 local unicode = require("unicode")
 local term = require("term")
-local colors = require("lib.colors")
+local colors = require("service.colors")
 local gpu = component.gpu
 
 local defaultBackground = colors.black;
@@ -27,7 +27,7 @@ end
 
 function lib.init(w, h, defForeground, defBackground)
     term.clear()
-    gpu.setResolution(w or 45, h or 15)
+    gpu.setResolution(w or 104, h or 31)
     defaultForeground = defForeground
     defaultBackground = defBackground
 end
@@ -38,9 +38,9 @@ function lib.text(x, y, text, color) --text
     resetColors()
 end
 
-function lib.rectangle(x, y, h, w, color) --filled rectangle
+function lib.rectangle(x, y, w, h, color) --filled rectangle
     setBackground(color)
-    gpu.fill(x, y, h, w, ' ')
+    gpu.fill(x, y, w, h, ' ')
     resetColors()
 end
 
