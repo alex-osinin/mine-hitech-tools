@@ -2,7 +2,7 @@ local service = {}
 
 local config = require("config")
 local tpsService = require("service.tps_counter")
-local reactorController = require("service.reactor_controller")
+local reactorService = require("service.reactor_service")
 local components = require("util.components")
 
 local chatbox
@@ -28,18 +28,18 @@ end
 
 local function initReactors()
     chatbox.say("§e§lИнициализирую реакторы")
-    reactorController.init()
+    reactorService.init()
     chatbox.say("Готово")
 end
 
 local function stopReactors()
     chatbox.say("§e§lВыключаю реакторы")
-    reactorController.stopAll()
+    reactorService.stopAll()
 end
 
 local function startReactors()
     chatbox.say("§e§lЗапускаю реакторы")
-    reactorController.startAll()
+    reactorService.startAll()
 end
 
 local function tps()

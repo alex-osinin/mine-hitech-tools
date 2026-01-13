@@ -2,6 +2,7 @@ local factory = {}
 
 local fs = require("filesystem")
 local computer = require("computer")
+local serialization = require("serialization")
 
 local function ensureDir(path)
     if fs.exists(path) then return end
@@ -31,8 +32,10 @@ function factory.new(opts)
     end
 
     function self.info(msg) return self.write("INFO", msg) end
+    function self.infoT(msg, table) return self.write("INFO", tostring(msg) .. ": " .. serialization.serialize(table, true)) end
     function self.warn(msg) return self.write("WARN", msg) end
     function self.error(msg) return self.write("ERROR", msg) end
+    function self.errorT(msg, err) return self.write("ERROR", tostring(msg) .. ": " .. serialization.serialize(err, true)) end
 
     return self
 end

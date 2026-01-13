@@ -69,7 +69,7 @@ end
 
 local function renderEnergy(state)
     local networkName = string.format("%-37s", state.energy.networkName or "")
-    gui.text(15, 23, networkName, colors.green)
+    gui.text(14, 23, networkName, colors.green)
     local formattedEnergy = string.format("%-37s", formatter.toDisplaySize(state.energy.input, 3, "Rf/t"))
     gui.text(14, 25, formattedEnergy, colors.green)
 end

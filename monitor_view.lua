@@ -66,13 +66,12 @@ local function safeCall(name, fn, ...)
     end
     local ok, err = xpcall(runner, debug.traceback)
     if not ok then
-        local msg = tostring(name) .. ": " .. tostring(err)
-        log.error(msg)
+        log.errorT(name, err)
     end
 end
 
 log.info("Старт приложения")
-log.info("Конфигурация: " .. config)
+log.infoT("Конфигурация: ", config)
 safeCall("initComponents", initComponents)
 safeCall("initUI", ui.initUI, log)
 

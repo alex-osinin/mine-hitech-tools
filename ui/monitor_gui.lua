@@ -2,7 +2,7 @@ local lib = {}
 local component = require("component")
 local unicode = require("unicode")
 local term = require("term")
-local colors = require("service.colors")
+local colors = require("util.colors")
 local gpu = component.gpu
 
 local defaultBackground = colors.black;
