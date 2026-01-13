@@ -8,12 +8,11 @@ config.chatbox = {
 }
 
 config.reactors = {
-    lapis = {
-        item = { name = "minecraft:lapis_block", damage = 0 },
+    cooling = {
+        item = { name = "ae2fc:fluid_drop" },
         limits = {
             minimum = 50000,
-            recommended = 900000,
-            precraftSize = 50000 -- todo реализовать прекрафт
+            recommended = 900000
         }
     }
 }

@@ -39,7 +39,7 @@ local state = {
     reactors = {
         summary = { working = 0, idle = 0, total = 0, energy = 0 },
         statuses = {},
-        lapis = -1
+        liquid = -1
     },
     energy = {
         networkName = 0,

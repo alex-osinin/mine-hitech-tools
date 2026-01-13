@@ -15,8 +15,8 @@ local ReactorState = {
 
 local reactorComponents = {}
 
-local lapisBlockItem = config.reactors.lapis.item
-local liquidSettings = config.reactors.lapis.limits
+local coolingLiquidItem = config.reactors.cooling.item
+local coolingSettings = config.reactors.cooling.limits
 
 function service.init(log)
     reactorComponents = components.findAll("htc_reactors_nuclear_reactor", log)
@@ -27,12 +27,11 @@ function service.getReactorsCount()
 end
 
 local function powerControl(currentLiquidCount)
-    -- todo добавить задержку на повторное включение
-    if currentLiquidCount < liquidSettings.minimum then
-        --Выключение при малом количестве лазурита
+    if currentLiquidCount < coolingSettings.minimum then
+        --Выключение при малом количестве охлаждения
         service.stopAll()
-    elseif currentLiquidCount >= liquidSettings.recommended then
-        --Включение при достаточном количестве лазурита
+    elseif currentLiquidCount >= coolingSettings.recommended then
+        --Включение при достаточном количестве охлаждения
         service.startAll()
     end
 end
@@ -109,11 +108,11 @@ end
 function service.updateState(state)
     state.reactors = getReactorsData()
 
-    local currentLapisCount = storageService.getItemQuantity(lapisBlockItem)
-    state.reactors.lapis = currentLapisCount
+    local currentLiquidCount = storageService.getItemQuantity(coolingLiquidItem)
+    state.reactors.liquid = currentLiquidCount
 
-    if currentLapisCount ~= -1 then
-        powerControl(currentLapisCount)
+    if currentLiquidCount ~= -1 then
+        powerControl(currentLiquidCount)
     end
 end
 

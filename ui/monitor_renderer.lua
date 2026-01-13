@@ -21,7 +21,7 @@ function renderer.initUI(log)
     gui.text(W - 20, 18, 'Включено:')
     gui.text(W - 20, 19, 'Без топлива:')
     gui.text(4, 18, 'Выход:')
-    gui.text(4, 19, 'Блоки лазурита:')
+    gui.text(4, 19, 'Жидкость:')
 
     --local miniFrame W, H = 78, 31
     -- рамка для сети
@@ -59,7 +59,7 @@ local function renderReactors(state)
     gui.text(W - 7, 19, data.idle .. "/" .. data.total .. "  ")
 
     gui.text(11, 18, string.format("%-15s", formatter.toDisplaySize(data.energy, 3, "Rf/t")))
-    gui.text(20, 19, string.format("%-10s", formatter.toDisplaySize(state.reactors.lapis, 1)))
+    gui.text(20, 19, string.format("%-10s", formatter.toDisplaySize(state.reactors.liquid, 1)))
 
     local statuses = state.reactors.statuses or {}
     for i = 1, math.min(#statuses, 6) do
