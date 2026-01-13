@@ -18,7 +18,7 @@ function renderer.initUI(log)
     -- рамка для реакторов
     gui.frame(1, 1, W - 1, 19, frameColor)
     gui.text(4, 1, "[Реакторы]", colors.cyan)
-    gui.text(W - 20, 18, 'Включено:')
+    gui.text(W - 20, 18, 'Работают:')
     gui.text(W - 20, 19, 'Без топлива:')
     gui.text(4, 18, 'Выход:')
     gui.text(4, 19, 'Жидкость:')
@@ -75,7 +75,7 @@ local function renderEnergy(state)
 end
 
 local function renderTPS(state)
-    local formattedTps = string.format("%-37.1f", state.tps.value)
+    local formattedTps = state.tps.value and string.format("%-37.1f", state.tps.value) or "-"
     gui.text(14, 27, formattedTps, tps.colorizeTPS(state.tps.value))
 end
 
@@ -91,6 +91,10 @@ function renderer.render(state)
     renderEnergy(state)
     renderTPS(state)
     renderRadar(state)
+end
+
+function renderer.debug(symbol)
+    gui.text(W - 1, 2, symbol, colors.red)
 end
 
 return renderer

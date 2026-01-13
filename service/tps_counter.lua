@@ -1,42 +1,48 @@
 local service = {}
-local fs = require("filesystem")
-local timeConstant = 2
-local num = 3
-local file = "/tmp/DEFG"
+local time = require("util.time")
 
-local function time()
-    local f = io.open(file, "w")
-    f:write("test")
-    f:close()
-    return (fs.lastModified(file))
-end
+local lastUptime = nil
+local lastRealTime = nil
 
-local function calc()
-    local allTPS = 0
-    local realTimeOld, realTimeNew, realTimeDiff
-    for _ = 1, num do
-        realTimeOld = time()
-        os.sleep(timeConstant)
-        realTimeNew = time()
-        realTimeDiff = realTimeNew - realTimeOld
-        allTPS = allTPS + 20000 * timeConstant / realTimeDiff
+local function measureTPS()
+    local currentUptime = time.uptime()
+    local currentRealTime = time.currentTimeMillis()
+
+    if not lastUptime or not lastRealTime then
+        lastUptime = currentUptime
+        lastRealTime = currentRealTime
+        return nil
     end
-    local avgTPS = allTPS / num
-    return avgTPS < 20 and avgTPS or 20
+
+    local uptimeDiff = currentUptime - lastUptime
+    local realTimeDiff = (currentRealTime - lastRealTime) / 1000
+    if realTimeDiff <= 0 then
+        return nil
+    end
+
+    local tps = (uptimeDiff * 20) / realTimeDiff
+
+    lastUptime = currentUptime
+    lastRealTime = currentRealTime
+
+    tps = tps > 20 and 20 or tps
+    return math.floor(tps * 10 + 0.5) / 10
 end
 
 function service.updateState(state)
-    state.tps.value = calc()
+    state.tps.value = measureTPS()
 end
 
 function service.colorizeTPS(tps)
     local color
-    if tps <= 10 then
-        color = COLORS.red
-    elseif tps <= 15 then
-        color = COLORS.yellow
+    if not tps then
+        color = COLORS.white
     elseif tps > 15 then
         color = COLORS.green
+    elseif tps > 10 then
+        color = COLORS.yellow
+    else
+        color = COLORS.red
     end
     return color
 end

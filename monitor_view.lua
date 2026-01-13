@@ -1,6 +1,7 @@
+package.loaded["config"] = nil
 local config = require("config")
 
--- ONLY FOR DEVELOPING
+-- only for developing
 if config.dev and config.dev.enabled then
     for _, m in ipairs(config.dev.hotReloadModules or {}) do
         package.loaded[m] = nil

@@ -7,7 +7,7 @@ local radars = {}
 function service.init(log)
     radars = components.findAll("radar", log)
 end
-
+-- todo добавить предопределенный список игроков онлайн/нет
 local function getPlayers()
     local players = {}
     for i = 1, #radars do

@@ -1,5 +1,10 @@
 local config = {}
 
+config.user = {
+    nick = "orange_juice_",
+    timezone = 4
+}
+
 config.chatbox = {
     name = "Алиса",
     permissions = {
@@ -46,7 +51,11 @@ config.dev = {
         "service.energy_service",
         "service.tps_counter",
         "ui.monitor_gui",
-        "ui.monitor_renderer"
+        "ui.monitor_renderer",
+        "util.components",
+        "util.logger",
+        "util.time",
+        "test.mock_components"
     },
 
     -- Профили моков: переключайте activeProfile под нужный сценарий
