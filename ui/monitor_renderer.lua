@@ -2,7 +2,7 @@ local renderer = {}
 local config = require("config")
 local gui = require("ui.monitor_gui")
 
-local reactorLib = require("service.void_reactor_lib")
+local reactorService = require("service.reactor_service")
 
 local tps = require("service.tps_counter")
 local colors = require("util.colors")
@@ -40,7 +40,7 @@ function renderer.initUI(log)
 end
 
 local function displayReactorStatus(reactorNumber, reactorState)
-    local backgroundColor = reactorLib.colorizeReactorState(reactorState)
+    local backgroundColor = reactorService.colorizeReactorState(reactorState)
     local startX, startY = 4, 4
     local index = reactorNumber - 1
     local x = startX + index % 10 * 7

@@ -4,8 +4,8 @@ local components = require("util.components")
 
 local radars = {}
 
-function service.init()
-    radars = components.getAll("radar")
+function service.init(log)
+    radars = components.findAll("radar", log)
 end
 
 local function getPlayers()

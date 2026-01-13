@@ -51,10 +51,11 @@ local state = {
 
 local function initComponents()
     log.info("Инициализация компонентов...")
-    storageService.init()
-    fluxService.init()
-    radarService.init()
-    reactorService.init()
+    storageService.init(log)
+    fluxService.init(log)
+    radarService.init(log)
+    reactorService.init(log)
+    chatHandler.init(log)
     log.info("Инициализация компонентов завершена")
 end
 
@@ -71,6 +72,7 @@ local function safeCall(name, fn, ...)
 end
 
 log.info("Старт приложения")
+log.info("Конфигурация: " .. config)
 safeCall("initComponents", initComponents)
 safeCall("initUI", ui.initUI, log)
 
@@ -85,7 +87,6 @@ local nextAt = {
 log.info("Запуск планировщика")
 while running do
     local now = computer.uptime()
-    -- fixme uptime в миллисекундах? если так, то таймеры надо изменить
     if now >= nextAt.reactors then
         nextAt.reactors = now + config.updateTimers.reactors
         safeCall("updateReactorsData", reactorService.updateState, state)

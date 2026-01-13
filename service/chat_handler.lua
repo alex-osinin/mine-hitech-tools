@@ -1,59 +1,59 @@
 local service = {}
 
 local config = require("config")
-local reactorLib = require("service.void_reactor_lib")
-local tpsLib = require("service.tps")
+local tpsService = require("service.tps_counter")
+local reactorController = require("service.reactor_controller")
 local components = require("util.components")
 
-local chatbot
-local permissions = (config.permissions and config.permissions.chat) or {}
+local chatbox
+local permissions = (config.chatbox.permissions and config.chatbox.permissions) or {}
 
-function service.init()
-    chatbot = components.requireComponent("chat_box")
-    chatbot.setName("§4Алиса§7§o")
-    chatbot.say("§fHello world!")
+function service.init(log)
+    chatbox = components.requireComponent("chat_box", log)
+    chatbox.setName("§4" .. config.chatbox.name .. "§7§o")
+    chatbox.say("§fHello world!")
 end
 
 local function help()
-    chatbot.say("Команды:")
-    chatbot.say("@r_init  - Инициализировать реакторы")
-    chatbot.say("@r_start - Запустить все реакторы")
-    chatbot.say("@r_stop  - Выключить все реакторы")
-    chatbot.say("@tps     - Вывести текущий ТПС")
-    chatbot.say("@exit    - Заершить работу программы")
-    chatbot.say("@reboot  - Перезагрузка ПК")
-    chatbot.say("Made by orange_juice_")
+    chatbox.say("Команды:")
+    chatbox.say("@r_init  - Инициализировать реакторы")
+    chatbox.say("@r_start - Запустить все реакторы")
+    chatbox.say("@r_stop  - Выключить все реакторы")
+    chatbox.say("@tps     - Вывести текущий ТПС")
+    chatbox.say("@exit    - Заершить работу программы")
+    chatbox.say("@reboot  - Перезагрузка ПК")
+    chatbox.say("Made by orange_juice_")
 end
 --игроки рядом
 
 local function initReactors()
-    chatbot.say("§e§lИнициализирую реакторы")
-    reactorLib.init()
-    chatbot.say("Реакторов найдено: " .. reactorLib.getReactorsCount())
+    chatbox.say("§e§lИнициализирую реакторы")
+    reactorController.init()
+    chatbox.say("Готово")
 end
 
 local function stopReactors()
-    chatbot.say("§e§lВыключаю реакторы")
-    reactorLib.stopAll()
+    chatbox.say("§e§lВыключаю реакторы")
+    reactorController.stopAll()
 end
 
 local function startReactors()
-    chatbot.say("§e§lЗапускаю реакторы")
-    reactorLib.startAll()
+    chatbox.say("§e§lЗапускаю реакторы")
+    reactorController.startAll()
 end
 
 local function tps()
-    local tps = string.format("%.1f", tpsLib.calc())
-    chatbot.say("§fTPS: " .. tps)
+    local tps = string.format("%.1f", tpsService.calc())
+    chatbox.say("§fTPS: " .. tps)
 end
 
 local function exit(ctx)
-    chatbot.say("§e§lЗакрываем лавочку")
+    chatbox.say("§e§lЗакрываем лавочку")
     ctx.exit()
 end
 
 local function reboot(ctx)
-    chatbot.say("§e§lПерезагрузка")
+    chatbox.say("§e§lПерезагрузка")
     ctx.reboot()
 end
 

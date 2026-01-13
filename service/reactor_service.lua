@@ -1,20 +1,25 @@
 local service = {}
 
-local meLib = require("service.storage_service")
+local storageService = require("service.storage_service")
 
 local config = require("config")
 local components = require("util.components")
 local colors = require("util.colors")
 
-local ReactorState = { WORKING = "2", IDLE = "1", STOPPED = "0", ERROR = "-1" }
+local ReactorState = {
+    WORKING = 2,
+    IDLE = 1,
+    STOPPED = 0,
+    ERROR = -1
+}
+
 local reactorComponents = {}
 
 local lapisBlockItem = config.reactors.lapis.item
 local liquidSettings = config.reactors.lapis.limits
 
-function service.init()
-    reactorComponents = components.getAll("htc_reactors_nuclear_reactor")
-    service.stopAll()
+function service.init(log)
+    reactorComponents = components.findAll("htc_reactors_nuclear_reactor", log)
 end
 
 function service.getReactorsCount()
@@ -104,7 +109,7 @@ end
 function service.updateState(state)
     state.reactors = getReactorsData()
 
-    local currentLapisCount = meLib.getItemQuantity(lapisBlockItem)
+    local currentLapisCount = storageService.getItemQuantity(lapisBlockItem)
     state.reactors.lapis = currentLapisCount
 
     if currentLapisCount ~= -1 then

@@ -2,8 +2,8 @@ local service = {}
 local components = require("util.components")
 local me
 
-function service.init()
-    me = components.requireComponent("me_controller")
+function service.init(log)
+    me = components.requireComponent("me_controller", log)
 end
 
 function service.getCPUInfo()

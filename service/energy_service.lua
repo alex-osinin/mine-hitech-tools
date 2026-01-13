@@ -2,8 +2,8 @@ local service = {}
 local components = require("util.components")
 local fluxStorage
 
-function service.init()
-    fluxStorage = components.requireComponent("flux_storage")
+function service.init(log)
+    fluxStorage = components.requireComponent("flux_storage", log)
 end
 
 local function getName()
