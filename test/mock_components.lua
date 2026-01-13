@@ -11,6 +11,15 @@ local function addr(prefix)
     return (prefix or "mock") .. "-" .. tostring(math.floor(now() * 1000))
 end
 
+local function mkChatBox()
+    return {
+        address = addr("chatbox"),
+        type = "chat_box",
+        setName = function() end,
+        say = function() end
+    }
+end
+
 local function mkFluxStorage()
     local fluxCfg = profile.flux or {}
     return {
@@ -108,6 +117,7 @@ end
 function mock.getPrimary(typeName)
     if typeName == "flux_storage" then return mkFluxStorage() end
     if typeName == "me_controller" then return mkMEController() end
+    if typeName == "chat_box" then return mkChatBox() end
     return nil
 end
 
