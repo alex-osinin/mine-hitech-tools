@@ -2,6 +2,9 @@ local formatter = {}
 local prefixes = { "k", "M", "G", "T" }
 
 function formatter.toDisplaySize(size, precision, unit)
+    if not size then
+        return "-"
+    end
     precision = precision or 0
     local prefix = ""
     for i = 1, #prefixes do

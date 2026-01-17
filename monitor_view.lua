@@ -92,28 +92,39 @@ log.info("Starting scheduler")
 while running do
     local now = computer.uptime()
     if now >= nextAt.reactors then
+        ui.debug("reactor")
         nextAt.reactors = now + config.updateTimers.reactors
         safeCall("updateReactorsData", reactorService.updateState, state)
+        safeCall("reactorControl", reactorService.powerControl, state.reactors, log)
+        ui.debug("-")
     end
 
     if now >= nextAt.radar then
+        ui.debug("radar")
         nextAt.radar = now + config.updateTimers.radar
         safeCall("updateRadarData", radarService.updateState, state)
+        ui.debug("-")
     end
 
     if now >= nextAt.tps then
+        ui.debug("tps")
         nextAt.tps = now + config.updateTimers.tps
         safeCall("updateTPSData", tpsCounter.updateState, state)
+        ui.debug("-")
     end
 
     if now >= nextAt.energy then
+        ui.debug("energy")
         nextAt.energy = now + config.updateTimers.energy
         safeCall("updateEnergyData", fluxService.updateState, state)
+        ui.debug("-")
     end
 
     if now >= nextAt.render then
+        ui.debug("render")
         nextAt.render = now + config.updateTimers.render
         safeCall("render", ui.render, state)
+        ui.debug("-")
     end
 
     -- ждём события, но не спим дольше ближайшего таймера
@@ -122,17 +133,23 @@ while running do
     if timeout < 0 then timeout = 0 end
     if timeout > 0.25 then timeout = 0.25 end
 
+    ui.debug("event")
     local name, _, a2, a3, _ = event.pull(timeout)
     if name == "key_down" then
+        ui.debug("key")
         local code = a3
         if code == keyboard.keys.delete then
             ctx.exit()
         end
+        ui.debug("-")
     elseif name == "chat_message" then
+        ui.debug("chat")
         local nick = a2
         local msg = a3
         safeCall("chatHandler", chatHandler.handle, nick, msg, ctx)
+        ui.debug("-")
     end
+    ui.debug("-")
 end
 log.info("Shutting down application")
 

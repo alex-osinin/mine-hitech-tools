@@ -7,74 +7,73 @@ local gpu = component.gpu
 
 local defaultBackground = colors.black;
 local defaultForeground = colors.white;
+local currentBackground = defaultBackground;
+local currentForeground = defaultForeground;
+
+function lib.setForeground(color)
+    local newColor = color or defaultForeground
+    if newColor ~= currentForeground then
+        gpu.setForeground(newColor)
+        currentForeground = newColor
+    end
+end
+
+function lib.setBackground(color)
+    local newColor = color or defaultBackground
+    if newColor ~= currentBackground then
+        gpu.setBackground(newColor)
+        currentBackground = newColor
+    end
+end
 
 local function resetColors()
     gpu.setBackground(defaultBackground)
     gpu.setForeground(defaultForeground)
 end
 
-local function setForeground(color)
-    if color then
-        gpu.setForeground(color)
-    end
-end
-
-local function setBackground(color)
-    if color then
-        gpu.setBackground(color)
-    end
-end
-
-function lib.init(w, h, defForeground, defBackground)
+function lib.init(w, h)
     term.clear()
     gpu.setResolution(w or 104, h or 31)
-    defaultForeground = defForeground
-    defaultBackground = defBackground
+    resetColors()
 end
 
-function lib.text(x, y, text, color) --text
-    setForeground(color)
+function lib.text(x, y, text, color)
+    lib.setForeground(color)
     gpu.set(x, y, text)
-    resetColors()
 end
 
 function lib.rectangle(x, y, w, h, color) --filled rectangle
-    setBackground(color)
+    lib.setBackground(color)
     gpu.fill(x, y, w, h, ' ')
-    resetColors()
 end
 
-function lib.hFill(x, y, w, symbol, color) --fill
-    setForeground(color)
+function lib.hFill(x, y, w, symbol, color)
+    lib.setForeground(color)
     gpu.fill(x, y, w, y, symbol)
-    resetColors()
 end
 
-function lib.vFill(x, y, h, symbol, color) --fill
-    setForeground(color)
+function lib.vFill(x, y, h, symbol, color)
+    lib.setForeground(color)
     gpu.fill(x, y, x, h, symbol)
-    resetColors()
 end
 
-function lib.fill(x, y, w, h, symbol, color) --fill
-    setForeground(color)
+function lib.fill(x, y, w, h, symbol, color)
+    lib.setForeground(color)
     gpu.fill(x, y, w, h, symbol)
-    resetColors()
 end
 
 function lib.line(type, x, y, h, color) -- линия горизонт/вертикаль
-    setForeground(color)
+    lib.setForeground(color)
     if type == "y" then
         gpu.fill(x, y + 1, 1, h - 2, "|")
     end
     if type == "x" then
         gpu.fill(x + 1, y, h - 2, 1, "=")
     end
-    resetColors()
 end
 
 function lib.frame(x, y, w, h, color)
-    setForeground(color)
+    lib.setForeground(color)
     gpu.set(x, y, "╔")
     gpu.set(x, y + h, "╚")
     gpu.set(x + w, y, "╗")
@@ -83,36 +82,28 @@ function lib.frame(x, y, w, h, color)
     gpu.fill(x + 1, y + h, w - 1, 1, "═")
     gpu.fill(x, y + 1, 1, h - 1, "║")
     gpu.fill(x + w, y + 1, 1, h - 1, "║")
-    resetColors()
 end
 
-function lib.bar(x, y, fill, w, type, color) -- прогрессбар
-    setBackground(0xF0F0F0)
-    gpu.fill(x, y - 1, 1, w, "▄")
-    gpu.fill(x, y + 1, 1, w, "▄")
-    setBackground(color)
-    if type == "y" then
-        gpu.fill(x, y, w, fill, "▄")
-    else
-        gpu.fill(x, y, fill, w, "▄")
-    end
-    resetColors()
-end
-
-function lib.button(x, y, text, bcolor, tcolor) --кнопка
-    setForeground(bcolor)
+function lib.button(x, y, text, bcolor, tcolor)
+    lib.setForeground(bcolor)
     local h = 2
     local w = 3 + unicode.len(text)
-    gpu.set(x, y, "╔")
-    gpu.set(x, y + h, "╚")
-    gpu.set(x + w, y, "╗")
-    gpu.set(x + w, y + h, "╝")
-    gpu.fill(x + 1, y, w - 1, 1, "═")
-    gpu.fill(x + 1, y + h, w - 1, 1, "═")
-    gpu.fill(x, y + 1, 1, h - 1, "║")
-    gpu.fill(x + w, y + 1, 1, h - 1, "║")
-    setForeground(tcolor)
+    lib.frame(x, y, w, h, bcolor)
+    lib.setForeground(tcolor)
     gpu.set(x + 2, y + 1, text)
+end
+
+function lib.allocateBuffer(w, h)
+    return gpu.allocateBuffer(w, h)
+end
+
+function lib.setActiveBuffer(buffer)
+    gpu.setActiveBuffer(buffer)
+end
+
+function lib.drawBuffer(sourceStartX, sourceStartY, sourceW, sourceH, destX, destY, buffer)
+    gpu.setActiveBuffer(0)
+    gpu.bitblt(0, destX, destY, sourceW, sourceH, buffer, sourceStartX, sourceStartY)
     resetColors()
 end
 

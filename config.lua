@@ -54,7 +54,9 @@ config.dev = {
         "ui.monitor_renderer",
         "util.components",
         "util.logger",
+        "util.formatter",
         "util.time",
+        "util.colors",
         "test.mock_components"
     },
 

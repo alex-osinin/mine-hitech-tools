@@ -12,7 +12,7 @@ local W, H = config.screen.width, config.screen.height
 
 function renderer.initUI(log)
     log.info("Initializing UI...")
-    gui.init(W, H, colors.white, colors.black)
+    gui.init(W, H)
 
     local frameColor = 0x3F3ACA
     -- рамка для реакторов
@@ -26,16 +26,17 @@ function renderer.initUI(log)
     --local miniFrame W, H = 78, 31
     -- рамка для сети
     gui.frame(1, H - 10, math.floor(W / 2) - 1, 10, frameColor)
-    gui.text(4, 21, "[Инфо]", colors.cyan)
-    gui.text(4, 23, "Имя сети:", colors.green)
-    gui.text(4, 25, "Энергия:", colors.green)
-    gui.text(4, 27, "TPS:", colors.green)
+    gui.text(4, 21, "[Info]")
+    gui.text(4, 23, "Network:")
+    gui.text(4, 25, "Energy:")
+    gui.text(4, 27, "Buffer:")
+    gui.text(4, 29, "TPS:")
 
     -- рамка радара
     gui.frame(math.floor(W / 2) + 1, H - 10, math.floor(W / 2) - 1, 10, frameColor)
-    gui.text(math.floor(W / 2) + 4, 21, "[Радар]", colors.cyan)
+    gui.text(math.floor(W / 2) + 4, 21, "[Radar]")
 
-    gui.text(4, 31, "[orange_juice_]", colors.blue)
+    gui.text(80, 31, "[made by orange_juice_]", frameColor)
     log.info("UI initialization completed")
 end
 
@@ -69,14 +70,16 @@ end
 
 local function renderEnergy(state)
     local networkName = string.format("%-37s", state.energy.networkName or "")
-    gui.text(14, 23, networkName, colors.green)
+    gui.text(13, 23, networkName)
     local formattedEnergy = string.format("%-37s", formatter.toDisplaySize(state.energy.input, 3, "Rf/t"))
-    gui.text(14, 25, formattedEnergy, colors.green)
+    gui.text(13, 25, formattedEnergy, colors.lightgreen)
+    local formattedBuffer = string.format("%-37s", formatter.toDisplaySize(state.energy.buffer, 3, "Rf"))
+    gui.text(13, 27, formattedBuffer, colors.lightgreen)
 end
 
 local function renderTPS(state)
     local formattedTps = state.tps.value and string.format("%-37.1f", state.tps.value) or "-"
-    gui.text(14, 27, formattedTps, tps.colorizeTPS(state.tps.value))
+    gui.text(13, 29, formattedTps, tps.colorizeTPS(state.tps.value))
 end
 
 local function renderRadar(state)
@@ -93,8 +96,10 @@ function renderer.render(state)
     renderRadar(state)
 end
 
-function renderer.debug(symbol)
-    gui.text(W - 1, 2, symbol, colors.red)
+function renderer.debug(stage)
+    if config.dev and config.dev.enabled then
+        gui.text(W - 8, 2, string.format("%-7s", stage), colors.red)
+    end
 end
 
 return renderer
