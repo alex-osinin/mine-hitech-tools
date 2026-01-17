@@ -51,13 +51,13 @@ local state = {
 }
 
 local function initComponents()
-    log.info("Инициализация компонентов...")
+    log.info("Initializing components...")
     storageService.init(log)
     fluxService.init(log)
     radarService.init(log)
     reactorService.init(log)
     chatHandler.init(log)
-    log.info("Инициализация компонентов завершена")
+    log.info("Component initialization completed")
 end
 
 local function safeCall(name, fn, ...)
@@ -76,8 +76,7 @@ local function safeCall(name, fn, ...)
     end
 end
 
-log.info("Старт приложения")
-log.infoT("Конфигурация: ", config)
+log.info("Starting application")
 safeCall("initComponents", initComponents)
 safeCall("initUI", ui.initUI, log)
 
@@ -89,7 +88,7 @@ local nextAt = {
     render = 0
 }
 
-log.info("Запуск планировщика")
+log.info("Starting scheduler")
 while running do
     local now = computer.uptime()
     if now >= nextAt.reactors then
@@ -135,7 +134,7 @@ while running do
         safeCall("chatHandler", chatHandler.handle, nick, msg, ctx)
     end
 end
-log.info("Завершение работы приложения")
+log.info("Shutting down application")
 
 term.clear()
 os.exit(0)

@@ -11,7 +11,7 @@ local formatter = require("util.formatter")
 local W, H = config.screen.width, config.screen.height
 
 function renderer.initUI(log)
-    log.info("Инициализация UI...")
+    log.info("Initializing UI...")
     gui.init(W, H, colors.white, colors.black)
 
     local frameColor = 0x3F3ACA
@@ -36,7 +36,7 @@ function renderer.initUI(log)
     gui.text(math.floor(W / 2) + 4, 21, "[Радар]", colors.cyan)
 
     gui.text(4, 31, "[orange_juice_]", colors.blue)
-    log.info("Инициализация UI завершена")
+    log.info("UI initialization completed")
 end
 
 local function displayReactorStatus(reactorNumber, reactorState)
