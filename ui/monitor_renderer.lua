@@ -1,8 +1,7 @@
 local renderer = {}
 local config = require("config")
 local gui = require("ui.monitor_gui")
-
-local reactorService = require("service.reactor_service")
+local reactorRender = require("ui.reactor_render")
 
 local tps = require("service.tps_counter")
 local colors = require("util.colors")
@@ -17,11 +16,7 @@ function renderer.initUI(log)
     local frameColor = 0x3F3ACA
     -- рамка для реакторов
     gui.frame(1, 1, W - 1, 19, frameColor)
-    gui.text(4, 1, "[Реакторы]", colors.cyan)
-    gui.text(W - 20, 18, 'Работают:')
-    gui.text(W - 20, 19, 'Без топлива:')
-    gui.text(4, 18, 'Выход:')
-    gui.text(4, 19, 'Жидкость:')
+    gui.text(4, 1, "[Reactors]")
 
     --local miniFrame W, H = 78, 31
     -- рамка для сети
@@ -38,34 +33,6 @@ function renderer.initUI(log)
 
     gui.text(80, 31, "[made by orange_juice_]", frameColor)
     log.info("UI initialization completed")
-end
-
-local function displayReactorStatus(reactorNumber, reactorState)
-    local backgroundColor = reactorService.colorizeReactorState(reactorState)
-    local startX, startY = 4, 4
-    local index = reactorNumber - 1
-    local x = startX + index % 10 * 7
-    local y = startY + math.floor(index / 10) * 3
-    gui.rectangle(x, y, 2, 1, backgroundColor)
-    local reactorStr = tostring(reactorNumber)
-    if reactorNumber < 10 then
-        reactorStr = ' ' .. reactorStr
-    end
-    gui.text(x, y - 1, reactorStr)
-end
-
-local function renderReactors(state)
-    local data = state.reactors.summary;
-    gui.text(W - 7, 18, data.working .. "/" .. data.total .. "  ")
-    gui.text(W - 7, 19, data.idle .. "/" .. data.total .. "  ")
-
-    gui.text(11, 18, string.format("%-15s", formatter.toDisplaySize(data.energy, 3, "Rf/t")))
-    gui.text(20, 19, string.format("%-10s", formatter.toDisplaySize(state.reactors.liquid, 1)))
-
-    local statuses = state.reactors.statuses or {}
-    for i = 1, math.min(#statuses, 6) do
-        displayReactorStatus(statuses[i].number, statuses[i].state)
-    end
 end
 
 local function renderEnergy(state)
@@ -90,7 +57,7 @@ local function renderRadar(state)
 end
 
 function renderer.render(state)
-    renderReactors(state)
+    reactorRender.renderReactors(state)
     renderEnergy(state)
     renderTPS(state)
     renderRadar(state)

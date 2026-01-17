@@ -44,13 +44,17 @@ function util.findAll(typeName, log)
     if #components == 0 and config.dev and config.dev.enabled and config.dev.useMockComponents then
         local list = mock.listAll(typeName) or {}
         for i = 1, #list do
-            log.warn("Using MOCK component for type: " .. typeName .. " (index " .. i .. ")")
+            log.warn(string.format("Using MOCK component - type: %s, address: %s (index %d)", typeName, list[i].address, i))
             table.insert(components, list[i])
         end
     end
 
     log.info("Total found components of type " .. typeName .. ": " .. #components)
     return components
+end
+
+function util.isConnected(c)
+    return c and c.address and (component.get(c.address) ~= nil or string.find(c.address, "mock", 1, true) == 1)
 end
 
 return util

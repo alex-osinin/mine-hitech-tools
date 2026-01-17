@@ -4,7 +4,6 @@ local config = require("config")
 local fs = require("filesystem")
 local computer = require("computer")
 
-local DATE_FORMAT = '%Y.%m.%d %H:%M:%S'
 local t_correction = config.user.timezone * 3600
 
 local function fileTime(file)
@@ -15,9 +14,9 @@ local function fileTime(file)
     return fs.lastModified(file)
 end
 
-function service.currentTimeFormatted()
+function service.currentTimeZ()
     local lastmod = fileTime('/tmp/FWHUY.tmp')
-    return os.date(DATE_FORMAT, tonumber(string.sub(lastmod, 1, -4)) + t_correction)
+    return tonumber(string.sub(lastmod, 1, -4)) + t_correction
 end
 
 function service.currentTimeMillis()
@@ -26,6 +25,10 @@ end
 
 function service.uptime()
     return computer.uptime()
+end
+
+function service.osTime()
+    return os.clock() or 0
 end
 
 return service

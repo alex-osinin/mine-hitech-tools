@@ -38,9 +38,23 @@ local ctx = {
 
 local state = {
     reactors = {
-        summary = { working = 0, idle = 0, total = 0, energy = 0 },
-        statuses = {},
-        liquid = -1
+        stats = {
+            byState = {
+                working = 0,
+                idle = 0
+            },
+            byCoolingType = {
+                air = 0,
+                liquid = 0
+            },
+            total = 0,
+            energy = 0,
+            coolant = {
+                available = 0,
+                consumption = 0
+            }
+        },
+        data = {}
     },
     energy = {
         networkName = 0,

@@ -52,6 +52,7 @@ config.dev = {
         "service.tps_counter",
         "ui.monitor_gui",
         "ui.monitor_renderer",
+        "ui.reactor_render",
         "util.components",
         "util.logger",
         "util.formatter",
@@ -60,85 +61,66 @@ config.dev = {
         "test.mock_components"
     },
 
-    -- Профили моков: переключайте activeProfile под нужный сценарий
-    activeProfile = "low_coolant_shutdown",
-
-    profiles = {
-        -- Сценарий: охлаждения мало => reactor_service должен выключить всё
-        low_coolant_shutdown = {
-            reactorsCount = 3,
-            reactor = {
-                idleMode = false,
-                energyGeneration = 4500
+    mocks = {
+        reactors = {
+            {
+                active = false,
+                energy = 4500,
+                level = 6,
+                temperature = 7200,
+                roadLeft = 1800
             },
-            me = {
-                coolantAmount = 1000 -- << ниже minimum
+            {
+                active = true,
+                energy = 0,
+                level = 5,
+                temperature = 6100,
+                roadLeft = 1200
             },
-            flux = {
-                networkName = "DEV-LOW-COOLANT",
-                energyInput = 800
+            {
+                error = true
             },
-            radar = {
-                players = { "Alex", "Steve" }
-            }
-        },
-
-        -- Сценарий: охлаждения много => reactor_service должен включить всё
-        enough_coolant_startup = {
-            reactorsCount = 4,
-            reactor = {
-                idleMode = false,
-                energyGeneration = 9000
-            },
-            me = {
-                coolantAmount = 950000 -- << выше recommended
-            },
-            flux = {
-                networkName = "DEV-OK-COOLANT",
-                energyInput = 16000
-            },
-            radar = {
-                players = { "Builder", "Miner", "Engineer" }
-            }
-        },
-
-        -- Сценарий: реакторы "есть work, но генерации нет" => IDLE в UI
-        idle_reactors = {
-            reactorsCount = 2,
-            reactor = {
-                idleMode = true,
-                energyGeneration = 0
-            },
-            me = {
-                coolantAmount = 950000
-            },
-            flux = {
-                networkName = "DEV-IDLE",
-                energyInput = 2000
-            },
-            radar = {
-                players = { "Observer" }
-            }
-        },
-
-        -- Сценарий: много игроков => проверка maxUsers + сортировки
-        crowded_radar = {
-            reactorsCount = 1,
-            reactor = {
-                idleMode = false,
-                energyGeneration = 3000
-            },
-            me = {
-                coolantAmount = 950000
-            },
-            flux = {
-                networkName = "DEV-RADAR",
-                energyInput = 5000
-            },
-            radar = {
-                players = {
-                    "Zed", "Alex", "Steve", "Builder", "Miner", "Engineer", "Pilot", "Trader", "Guard"
+            {
+                active = true,
+                energy = 4500,
+                level = 6,
+                temperature = 7200,
+                roadLeft = 5500,
+                cooling = {
+                    active = true,
+                    consume = 1200
                 }
+            },
+            {
+                active = true,
+                energy = 3200,
+                level = 5,
+                temperature = 6100,
+                roadLeft = 14000
+            },
+            {
+                active = false,
+                energy = 5100,
+                level = 6,
+                temperature = 7800,
+                roadLeft = 9923,
+                cooling = {
+                    active = true
+                }
+            }
+        },
+        me = {
+            coolantAmount = 1000000
+        },
+        flux = {
+            networkName = "TEST_NETWORK_NAME",
+            energyInput = 800,
+            totalBuffer = 600
+        },
+        radar = {
+            players = {
+                "Zed", "Alex", "Steve", "Builder", "Miner", "Engineereeeeeeeeeeeeeeee", "12345678910111213141516171819",
+                "wewhy6hyhy", "gtgtgtg", "ijoinon", "Trader", "Guard", "wegwgweg", "gtgtgtg", "z12345678910111213141516171819"
             }
         }
     }

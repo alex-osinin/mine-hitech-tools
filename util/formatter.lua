@@ -23,4 +23,12 @@ function formatter.toDisplaySize(size, precision, unit)
     end
 end
 
+-- example format='%Y.%m.%d %H:%M:%S'
+function formatter.timeToStr(format, time)
+    if not format or not time then
+        return "-"
+    end
+    return os.date(format, time)
+end
+
 return formatter

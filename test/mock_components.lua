@@ -1,17 +1,13 @@
 -- util/mock_components.lua
 local mock = {}
 local cfg = require("config")
-local profile = cfg.dev.profiles[cfg.dev.activeProfile]
+local time = require("util.time")
 
 local loggerFactory = require("util.logger")
 local chatLog = loggerFactory.new({ file = "chatbox.log" })
 
-local function now()
-    return (os.clock and os.clock()) or 0
-end
-
-local function addr(prefix)
-    return (prefix or "mock") .. "-" .. tostring(math.floor(now() * 1000))
+local function addr(type)
+    return string.format("mock-%s-%s", type, tostring(math.floor(time.osTime() * 1000)))
 end
 
 local function mkChatBox()
@@ -28,7 +24,7 @@ local function mkChatBox()
 end
 
 local function mkFluxStorage()
-    local fluxCfg = profile.flux or {}
+    local fluxCfg = cfg.dev.mocks.flux or {}
     return {
         address = addr("flux"),
         type = "flux_storage",
@@ -42,7 +38,7 @@ local function mkFluxStorage()
 end
 
 local function mkRadar(index)
-    local radarCfg = profile.radar or {}
+    local radarCfg = cfg.dev.mocks.radar or {}
     return {
         address = addr("radar"),
         type = "radar",
@@ -59,32 +55,41 @@ local function mkRadar(index)
 end
 
 local function mkReactor(index)
-    local rCfg = profile.reactor or {}
-    local work = true
-    if rCfg.idleMode then
-        work = true
-    end
-    local active = work
+    local reactorsCfg = cfg.dev.mocks.reactors or {}
+    local rCfg = reactorsCfg[index] or {}
+    local active = rCfg.active
 
+    local function getReactorAddress()
+        if rCfg.error then return nil end
+        return addr("reactor" .. index)
+    end
     return {
-        address = addr("reactor"),
+        address = getReactorAddress(),
         type = "htc_reactors_nuclear_reactor",
         slot = function() return index end,
 
         hasWork = function() return active end,
         activate = function() active = true; return true end,
         deactivate = function() active = false; return true end,
-
+        getReactorLevel = function() return rCfg.level or 6 end,
+        isActiveCooling = function() return rCfg.cooling and rCfg.cooling.active or false end,
+        getTemperature = function() return rCfg.temperature or 0 end,
+        getFluidCoolantConsume = function()
+            if not active then return 0 end
+            return rCfg.cooling and rCfg.cooling.consume or 0
+        end,
+        getAllFuelRodsStatus = function()
+            return { { nil, nil, nil, nil, nil, rCfg.roadLeft or 900 } }
+        end,
         getEnergyGeneration = function()
             if not active then return 0 end
-            if rCfg.idleMode then return 0 end
-            return rCfg.energyGeneration or 0
+            return rCfg.energy or 0
         end
     }
 end
 
 local function mkMEController()
-    local meCfg = profile.me or {}
+    local meCfg = cfg.dev.mocks.me or {}
     return {
         address = addr("me"),
         type = "me_controller",
@@ -134,7 +139,7 @@ function mock.listAll(typeName)
     end
 
     if typeName == "htc_reactors_nuclear_reactor" then
-        local n = profile.reactorsCount or 1
+        local n = #cfg.dev.mocks.reactors or 1
         local list = {}
         for i = 1, n do list[i] = mkReactor(i) end
         return list

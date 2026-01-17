@@ -93,6 +93,20 @@ function lib.button(x, y, text, bcolor, tcolor)
     gpu.set(x + 2, y + 1, text)
 end
 
+function lib.progressBar(x, y, segmentCount, value, maxValue, prefix, suffix)
+    if value == nil then
+        return string.rep("·", segmentCount)
+    end
+    if value < 0 then value = 0 end
+    if value > maxValue then value = maxValue end
+
+    local filled = math.floor((value / maxValue) * segmentCount + 0.000001)
+    if filled > segmentCount then filled = segmentCount end
+
+    local bar = string.rep("=", filled) .. string.rep("·", segmentCount - filled)
+    gpu.set(x, y, (prefix or "") .. bar .. (suffix or ""))
+end
+
 function lib.allocateBuffer(w, h)
     return gpu.allocateBuffer(w, h)
 end
