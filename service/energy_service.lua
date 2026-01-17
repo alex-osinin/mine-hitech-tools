@@ -6,17 +6,11 @@ function service.init(log)
     fluxStorage = components.requireComponent("flux_storage", log)
 end
 
-local function getName()
-    return fluxStorage.getNetworkInfo().name
-end
-
-local function getInputEnergy()
-    return fluxStorage.getEnergyInfo().energyInput
-end
-
 function service.updateState(state)
-    state.energy.networkName = getName()
-    state.energy.input = getInputEnergy()
+    state.energy.networkName = fluxStorage.getNetworkInfo().name
+    local energyInfo = fluxStorage.getEnergyInfo()
+    state.energy.input = energyInfo.energyInput
+    state.energy.buffer = energyInfo.totalBuffer
 end
 
 return service

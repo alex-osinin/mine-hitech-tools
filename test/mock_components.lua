@@ -29,7 +29,7 @@ local function mkFluxStorage()
             return { name = fluxCfg.networkName or "MOCK-NET" }
         end,
         getEnergyInfo = function()
-            return { energyInput = fluxCfg.energyInput or 0 }
+            return { energyInput = fluxCfg.energyInput or 0, totalBuffer = fluxCfg.totalBuffer or 0}
         end
     }
 end
