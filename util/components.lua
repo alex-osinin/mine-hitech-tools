@@ -57,4 +57,16 @@ function util.isConnected(c)
     return c and c.address and (component.get(c.address) ~= nil or string.find(c.address, "mock", 1, true) == 1)
 end
 
+function util.format(components)
+    local result = {}
+    for i = 1, #components do
+        local c = components[i]
+        result[i] = {
+            type = c and c.type or nil,
+            address = c and c.address or nil,
+        }
+    end
+    return result
+end
+
 return util

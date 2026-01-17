@@ -109,7 +109,7 @@ while running do
         ui.debug("reactor")
         nextAt.reactors = now + config.updateTimers.reactors
         safeCall("updateReactorsData", reactorService.updateState, state)
-        safeCall("reactorControl", reactorService.powerControl, state.reactors, log)
+        safeCall("controlReactors", reactorService.controlReactors, state.reactors, log)
         ui.debug("-")
     end
 

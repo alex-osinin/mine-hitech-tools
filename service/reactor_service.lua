@@ -30,14 +30,14 @@ end
 local function getManagedReactors()
     local managed = {}
     for _, reactor in ipairs(reactorComponents) do
-        if components.isConnected(reactor) and (reactor.isActiveCooling() and CoolingType.LIQ or CoolingType.AIR) then
+        if components.isConnected(reactor) and reactor.isActiveCooling() then
             table.insert(managed, reactor)
         end
     end
     return managed
 end
 
-function service.powerControl(reactorsData, log)
+function service.controlReactors(reactorsData, log)
     if reactorsData.stats.byCoolingType.liquid == 0 then
         return
     end
