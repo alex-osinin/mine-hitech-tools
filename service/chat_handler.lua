@@ -6,7 +6,7 @@ local reactorService = require("service.reactor_service")
 local components = require("util.components")
 
 local chatbox
-local permissions = (config.chatbox.permissions and config.chatbox.permissions) or {}
+local permissions = config.chatbox.permissions or {}
 
 function service.init(log)
     chatbox = components.requireComponent("chat_box", log)

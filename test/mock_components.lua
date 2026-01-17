@@ -3,6 +3,9 @@ local mock = {}
 local cfg = require("config")
 local profile = cfg.dev.profiles[cfg.dev.activeProfile]
 
+local loggerFactory = require("util.logger")
+local chatLog = loggerFactory.new({ file = "chatbox.log" })
+
 local function now()
     return (os.clock and os.clock()) or 0
 end
@@ -12,11 +15,15 @@ local function addr(prefix)
 end
 
 local function mkChatBox()
+    local name = "undefined"
     return {
         address = addr("chatbox"),
         type = "chat_box",
-        setName = function() end,
-        say = function() end
+        setName = function(newName)
+            chatLog.info(string.format("Name changed: %s -> %s", name, newName))
+            name = newName
+        end,
+        say = function(text) chatLog.info(name .. " says: " .. text) end
     }
 end
 
