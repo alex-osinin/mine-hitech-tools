@@ -33,18 +33,4 @@ function service.updateState(state)
     state.tps.value = measureTPS()
 end
 
-function service.colorizeTPS(tps)
-    local color
-    if not tps then
-        color = COLORS.white
-    elseif tps > 15 then
-        color = COLORS.green
-    elseif tps > 10 then
-        color = COLORS.yellow
-    else
-        color = COLORS.red
-    end
-    return color
-end
-
 return service

@@ -42,6 +42,11 @@ function lib.text(x, y, text, color)
     gpu.set(x, y, text)
 end
 
+function lib.label(x, y, label)
+    lib.setForeground(label.color)
+    gpu.set(x, y, label.text)
+end
+
 function lib.rectangle(x, y, w, h, color) --filled rectangle
     lib.setBackground(color)
     gpu.fill(x, y, w, h, ' ')

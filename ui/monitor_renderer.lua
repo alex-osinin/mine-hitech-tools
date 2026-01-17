@@ -3,7 +3,6 @@ local config = require("config")
 local gui = require("ui.monitor_gui")
 local reactorRender = require("ui.reactor_render")
 
-local tps = require("service.tps_counter")
 local colors = require("util.colors")
 local formatter = require("util.formatter")
 
@@ -44,9 +43,24 @@ local function renderEnergy(state)
     gui.text(13, 27, formattedBuffer, colors.lightgreen)
 end
 
+local function getTPSLabel(tps)
+    local formattedTps = tps and string.format("%-37.1f", tps) or "-"
+    local color
+    if not tps then
+        color = COLORS.white
+    elseif tps > 15 then
+        color = COLORS.green
+    elseif tps > 10 then
+        color = COLORS.yellow
+    else
+        color = COLORS.red
+    end
+    return { text = formattedTps, color = color }
+end
+
 local function renderTPS(state)
-    local formattedTps = state.tps.value and string.format("%-37.1f", state.tps.value) or "-"
-    gui.text(13, 29, formattedTps, tps.colorizeTPS(state.tps.value))
+    local tpsLabel = getTPSLabel(state.tps.value)
+    gui.label(13, 29, tpsLabel)
 end
 
 local function renderRadar(state)
