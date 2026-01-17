@@ -21,13 +21,18 @@ function factory.new(opts)
 
     ensureDir(dir)
 
-    local self = {}
+    local self = {LastMsg}
 
     function self.write(level, msg)
+        local strMsg = tostring(msg)
+        if level == "ERROR" and LastMsg == strMsg then
+            return false
+        end
         local f = io.open(path, "a")
         if not f then return false end
-        f:write(string.format("[%s] [%-5s] %s\n", nowStr(), tostring(level), tostring(msg)))
+        f:write(string.format("[%s] [%-5s] %s\n", nowStr(), level, strMsg))
         f:close()
+        LastMsg = strMsg
         return true
     end
 
