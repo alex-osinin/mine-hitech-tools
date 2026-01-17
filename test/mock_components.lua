@@ -79,7 +79,7 @@ local function mkReactor(index)
             return rCfg.cooling and rCfg.cooling.consume or 0
         end,
         getAllFuelRodsStatus = function()
-            return { { nil, nil, nil, nil, nil, rCfg.roadLeft or 900 } }
+            return { { nil, nil, nil, nil, nil, rCfg.rodDecayRemaining or 0, nil, rCfg.rodDecayTotal or 0 } }
         end,
         getEnergyGeneration = function()
             if not active then return 0 end

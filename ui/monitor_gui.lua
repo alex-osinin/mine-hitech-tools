@@ -99,8 +99,9 @@ function lib.button(x, y, text, bcolor, tcolor)
 end
 
 function lib.progressBar(x, y, segmentCount, value, maxValue, prefix, suffix)
-    if value == nil then
-        return string.rep("·", segmentCount)
+    if not value or not maxValue then
+        gpu.set(x, y, (prefix or "") .. string.rep("·", segmentCount) .. (suffix or ""))
+        return
     end
     if value < 0 then value = 0 end
     if value > maxValue then value = maxValue end

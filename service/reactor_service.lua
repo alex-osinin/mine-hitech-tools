@@ -102,31 +102,33 @@ local function getState(reactor)
     end
 end
 
-local function calculateAverageFuelDepletion(reactor)
+local function getMaxDecayRodTime(reactor, isLiquidCooled)
     local rodsStatuses = reactor.getAllFuelRodsStatus()
-    if not rodsStatuses or type(rodsStatuses) ~= "table" then
+    if not rodsStatuses then
         return nil
     end
 
-    local totalSeconds = 0
-    local count = 0
-
+    local maxTotalTime = -1
+    local maxRemainingTime = -1
     for _, rodStatus in pairs(rodsStatuses) do
-        if type(rodStatus) == "table" and rodStatus[6] then
-            local secondsLeft = tonumber(rodStatus[6])
-            if secondsLeft then
-                totalSeconds = totalSeconds + secondsLeft
-                count = count + 1
-            end
+        local remainingTime = rodStatus.fuel or rodStatus[6]
+        local totalTime = rodStatus.maxFuel or rodStatus[8]
+
+        -- Сначала ищем максимальное общее время распада для случаев, когда несколько типов стержней
+        if totalTime > maxTotalTime then
+            maxTotalTime = totalTime
+            maxRemainingTime = remainingTime
+        -- При равном общем времени выбираем с большим оставшимся
+        elseif totalTime == maxTotalTime and remainingTime > maxRemainingTime then
+            maxRemainingTime = remainingTime
         end
     end
 
-    if count == 0 then
+    if maxTotalTime < 0 then
         return nil
     end
-
-    local average = totalSeconds / count
-    return math.floor(average + 0.5)
+    local divisor = isLiquidCooled and 2 or 1
+    return math.floor(maxRemainingTime / divisor), math.floor(maxTotalTime/ divisor)
 end
 
 local function getReactorData(reactor, number, stats)
@@ -154,6 +156,7 @@ local function getReactorData(reactor, number, stats)
     else
         stats.byCoolingType.air = stats.byCoolingType.air + 1
     end
+    local rodDecayRemaining, rodDecayTotal = getMaxDecayRodTime(reactor, coolingType == CoolingType.LIQ)
 
     return {
         number = number,
@@ -161,7 +164,10 @@ local function getReactorData(reactor, number, stats)
         level = reactor.getReactorLevel(),
         energy = energy,
         temperature = reactor.getTemperature(),
-        durability = calculateAverageFuelDepletion(reactor),
+        fuel = {
+            remainingTime = rodDecayRemaining,
+            totalTime = rodDecayTotal
+        },
         cooling = {
             type = coolingType,
             consume = coolantConsume

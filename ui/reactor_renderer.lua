@@ -57,7 +57,8 @@ local function getCoolantSummaryLabel(currentLiquidCount)
     return { text = text, color = stateColor }
 end
 
-local function formatDurationMinutes(seconds)
+local function formatFuelRemainingTime(seconds)
+
     if not seconds then
         return "-"
     end
@@ -81,7 +82,7 @@ local function renderReactorCell(reactorData)
     local power = reactorData.energy and formatter.toDisplaySize(reactorData.energy, 3, "Rf/t") or "-"
     local coolant = reactorData.cooling and reactorData.cooling.consume or "-"
     local temp = reactorData.temperature and reactorData.temperature .. " °C" or "-"
-    local rods = formatDurationMinutes(reactorData.durability)
+    local fuelRemainingTime = formatFuelRemainingTime(reactorData.fuel and reactorData.fuel.remainingTime)
 
     local w, h = 26, 6
     gui.setActiveBuffer(buffer)
@@ -100,7 +101,7 @@ local function renderReactorCell(reactorData)
         gui.text(17, 4, coolant .. " mB/s", colors.cyan)
     end
     gui.text(10, 5, "Rods:")
-    gui.text(17, 5, rods)
+    gui.text(17, 5, fuelRemainingTime)
 
     gui.text(1, 2, "███████")
     gui.text(2, 3, "▌▌ ▐▐", coolingTypeLabel.color)
@@ -108,8 +109,8 @@ local function renderReactorCell(reactorData)
     gui.text(2, 5, "▌▌ ▐▐", coolingTypeLabel.color)
     gui.text(1, 6, "███████")
 
-    --todo считать максимальный ресурс стержней от типа
-    gui.progressBar(12, 6, 15, reactorData.durability, 4 * 60 * 60, "[", "]")
+    local elapsedTime = reactorData.fuel and (reactorData.fuel.totalTime or 0) - (reactorData.fuel.remainingTime or 0)
+    gui.progressBar(10, 6, 15, elapsedTime, reactorData.fuel and reactorData.fuel.totalTime, "[", "]")
 
     gui.text(4, 3, coreSymbol, colors.brightorange)
     gui.text(4, 4, coreSymbol, colors.brightorange)

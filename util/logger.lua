@@ -20,6 +20,8 @@ function factory.new(opts)
     local path = dir .. "/" .. file
 
     ensureDir(dir)
+    local f = io.open(path, "w")
+    if f then f:close() end
 
     local self = {LastMsg}
 

@@ -1,7 +1,7 @@
 local renderer = {}
 local config = require("config")
 local gui = require("ui.monitor_gui")
-local reactorRender = require("ui.reactor_render")
+local reactorRender = require("ui.reactor_renderer")
 
 local colors = require("util.colors")
 local formatter = require("util.formatter")
@@ -71,7 +71,7 @@ local function renderRadar(state)
 end
 
 function renderer.render(state)
-    reactorRender.renderReactors(state)
+    reactorRender.renderReactorSection(state)
     renderEnergy(state)
     renderTPS(state)
     renderRadar(state)

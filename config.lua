@@ -52,7 +52,7 @@ config.dev = {
         "service.tps_counter",
         "ui.monitor_gui",
         "ui.monitor_renderer",
-        "ui.reactor_render",
+        "ui.reactor_renderer",
         "util.components",
         "util.logger",
         "util.formatter",
@@ -68,14 +68,16 @@ config.dev = {
                 energy = 4500,
                 level = 6,
                 temperature = 7200,
-                roadLeft = 1800
+                rodDecayRemaining = 1800,
+                rodDecayTotal = 8000
             },
             {
                 active = true,
                 energy = 0,
                 level = 5,
                 temperature = 6100,
-                roadLeft = 1200
+                rodDecayRemaining = 18000,
+                rodDecayTotal = 20000
             },
             {
                 error = true
@@ -85,7 +87,8 @@ config.dev = {
                 energy = 4500,
                 level = 6,
                 temperature = 7200,
-                roadLeft = 5500,
+                rodDecayRemaining = 3900,
+                rodDecayTotal = 4000,
                 cooling = {
                     active = true,
                     consume = 1200
@@ -96,14 +99,16 @@ config.dev = {
                 energy = 3200,
                 level = 5,
                 temperature = 6100,
-                roadLeft = 14000
+                rodDecayRemaining = 14000,
+                rodDecayTotal = 20000,
             },
             {
                 active = false,
                 energy = 5100,
                 level = 6,
                 temperature = 7800,
-                roadLeft = 9923,
+                rodDecayRemaining = 4528,
+                rodDecayTotal = 8000,
                 cooling = {
                     active = true
                 }
