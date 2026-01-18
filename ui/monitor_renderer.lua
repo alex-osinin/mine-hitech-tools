@@ -2,6 +2,7 @@ local renderer = {}
 local config = require("config")
 local gui = require("ui.monitor_gui")
 local reactorRender = require("ui.reactor_renderer")
+local radarRender = require("ui.radar_renderer")
 
 local colors = require("util.colors")
 local formatter = require("util.formatter")
@@ -63,18 +64,11 @@ local function renderTPS(state)
     gui.label(13, 29, tpsLabel)
 end
 
-local function renderRadar(state)
-    for i = 1, config.radar.maxUsers do
-        local player = string.format("%-37s", state.radar.players[i] or "")
-        gui.text(math.floor(W / 2) + 4, i + 22, player, colors.red)
-    end
-end
-
 function renderer.render(state)
     reactorRender.renderReactorSection(state)
     renderEnergy(state)
     renderTPS(state)
-    renderRadar(state)
+    radarRender.renderRadarSection(state)
 end
 
 function renderer.debug(stage)

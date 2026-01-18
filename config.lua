@@ -36,7 +36,7 @@ config.updateTimers = {
 }
 
 config.radar = {
-    maxUsers = 7
+    maxUsers = 14
 }
 
 config.dev = {
@@ -53,6 +53,7 @@ config.dev = {
         "ui.monitor_gui",
         "ui.monitor_renderer",
         "ui.reactor_renderer",
+        "ui.radar_renderer",
         "util.components",
         "util.logger",
         "util.formatter",

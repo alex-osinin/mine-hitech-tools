@@ -114,16 +114,17 @@ function lib.progressBar(x, y, segmentCount, value, maxValue, prefix, suffix)
 end
 
 function lib.allocateBuffer(w, h)
-    return gpu.allocateBuffer(w, h)
+    return { index = gpu.allocateBuffer(w, h), width = w, height = h}
 end
 
-function lib.setActiveBuffer(buffer)
-    gpu.setActiveBuffer(buffer)
+function lib.activateBuffer(buffer)
+    gpu.setActiveBuffer(buffer.index)
+    lib.fill(1, 1, buffer.width, buffer.height, " ")
 end
 
-function lib.drawBuffer(sourceStartX, sourceStartY, sourceW, sourceH, destX, destY, buffer)
+function lib.drawBuffer(destX, destY, buffer)
     gpu.setActiveBuffer(0)
-    gpu.bitblt(0, destX, destY, sourceW, sourceH, buffer, sourceStartX, sourceStartY)
+    gpu.bitblt(0, destX, destY, buffer.width, buffer.height, buffer.index, 1, 1)
     resetColors()
 end
 

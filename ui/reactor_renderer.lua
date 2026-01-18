@@ -8,6 +8,7 @@ local colors = require("util.colors")
 local formatter = require("util.formatter")
 
 local buffer = gui.allocateBuffer(26, 6)
+
 local startRenderPositions = {
     { x = 8,  y = 3 },
     { x = 40, y = 3 },
@@ -84,9 +85,7 @@ local function renderReactorCell(reactorData)
     local temp = reactorData.temperature and reactorData.temperature .. " °C" or "-"
     local fuelRemainingTime = formatFuelRemainingTime(reactorData.fuel and reactorData.fuel.remainingTime)
 
-    local w, h = 26, 6
-    gui.setActiveBuffer(buffer)
-    gui.fill(1, 1, w, h, " ")
+    gui.activateBuffer(buffer)
 
     gui.label(10, 1, statusLabel)
     gui.text(17, 1, "LVL:" .. level)
@@ -116,7 +115,7 @@ local function renderReactorCell(reactorData)
     gui.text(4, 4, coreSymbol, colors.brightorange)
     gui.text(4, 5, coreSymbol, colors.brightorange)
 
-    gui.drawBuffer(1, 1, w, h, pos.x, pos.y, buffer)
+    gui.drawBuffer(pos.x, pos.y, buffer)
 end
 
 local function renderSummary(stats)

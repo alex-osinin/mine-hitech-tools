@@ -24,7 +24,6 @@ local function help()
     chatbox.say("@reboot  - Перезагрузка ПК")
     chatbox.say("Made by orange_juice_")
 end
---игроки рядом
 
 local function initReactors()
     chatbox.say("§e§lИнициализирую реакторы")
