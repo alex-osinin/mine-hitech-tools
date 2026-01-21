@@ -35,6 +35,10 @@ function renderer.initUI(log)
     log.info("UI initialization completed")
 end
 
+function renderer.cleanup()
+    gui.cleanup()
+end
+
 local function renderEnergy(state)
     local networkName = string.format("%-37s", state.energy.networkName or "")
     gui.text(13, 23, networkName)

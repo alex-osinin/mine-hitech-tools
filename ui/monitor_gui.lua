@@ -128,4 +128,9 @@ function lib.drawBuffer(destX, destY, buffer)
     resetColors()
 end
 
+function lib.cleanup()
+    gpu.freeAllBuffers()
+    term.clear()
+end
+
 return lib

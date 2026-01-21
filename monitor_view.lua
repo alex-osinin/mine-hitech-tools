@@ -12,7 +12,6 @@ end
 local computer = require("computer")
 local event = require("event")
 local keyboard = require("keyboard")
-local term = require("term")
 
 local ui = require("ui.monitor_renderer")
 local chatHandler = require("service.chat_handler")
@@ -84,7 +83,7 @@ local function safeCall(name, fn, ...)
     if not ok then
         log.errorT(name, err)
         if type(err) == "table" and err.__fatal then
-            term.clear()
+            ui.cleanup()
             io.stderr:write(err.message or ("Fatal error in " .. tostring(name)))
             os.exit(err.code or 1)
         end
@@ -173,5 +172,5 @@ while running do
 end
 log.info("Shutting down application")
 
-term.clear()
+ui.cleanup()
 os.exit(0)
