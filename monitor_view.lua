@@ -16,6 +16,7 @@ local term = require("term")
 
 local ui = require("ui.monitor_renderer")
 local chatHandler = require("service.chat_handler")
+local touchHandler = require("service.handler.touch_handler")
 local tpsCounter = require("service.tps_counter")
 local reactorService = require("service.reactor_service")
 local fluxService = require("service.energy_service")
@@ -149,7 +150,12 @@ while running do
 
     ui.debug("event")
     local name, _, a2, a3, _ = event.pull(timeout)
-    if name == "key_down" then
+    if name == "touch" then
+        ui.debug("touch")
+        local x, y = a2, a3
+        safeCall("touchHandler", touchHandler.handle, x, y, state, log)
+        ui.debug("-")
+    elseif name == "key_down" then
         ui.debug("key")
         local code = a3
         if code == keyboard.keys.delete then

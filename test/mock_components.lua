@@ -60,7 +60,7 @@ local function mkReactor(index)
     local active = rCfg.active
 
     local function getReactorAddress()
-        if rCfg.error then return nil end
+        if rCfg.error then return "-" end
         return addr("reactor" .. index)
     end
     return {

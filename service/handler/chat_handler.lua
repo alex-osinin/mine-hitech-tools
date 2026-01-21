@@ -38,7 +38,7 @@ end
 
 local function startReactors()
     chatbox.say("§e§lЗапускаю реакторы")
-    reactorService.startAll()
+    reactorService.startAll()--fixme dont work
 end
 
 local function tps()

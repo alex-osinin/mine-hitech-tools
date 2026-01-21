@@ -6,8 +6,9 @@ local config = require("config")
 local components = require("util.components")
 
 local ReactorState = {
-    WORKING = 2,
-    IDLE = 1,
+    WORKING = 3,
+    IDLE = 2,
+    STOPPED_MANUALLY = 1,
     STOPPED = 0,
     ERROR = -1
 }
@@ -27,10 +28,10 @@ function service.init(log)
     reactorComponents = components.findAll("htc_reactors_nuclear_reactor", log)
 end
 
-local function getManagedReactors()
+local function getManagedReactors(reactorsData)
     local managed = {}
-    for _, reactor in ipairs(reactorComponents) do
-        if components.isConnected(reactor) and reactor.isActiveCooling() then
+    for _, reactor in ipairs(reactorsData.data) do
+        if reactor.cooling and reactor.cooling.type == CoolingType.LIQ and reactor.state ~= ReactorState.STOPPED_MANUALLY then
             table.insert(managed, reactor)
         end
     end
@@ -44,11 +45,11 @@ function service.controlReactors(reactorsData, log)
 
     local currentLiquidCount = reactorsData.stats.coolant.available
     if currentLiquidCount < coolingSettings.minimum then
-        if service.stopAll(getManagedReactors()) then
+        if service.stopAll(getManagedReactors(reactorsData)) then
             log.warn("Coolant low: stopping liquid-cooled reactors.")
         end
     elseif currentLiquidCount >= coolingSettings.recommended then
-        if service.startAll(getManagedReactors()) then
+        if service.startAll(getManagedReactors(reactorsData)) then
             log.info("Coolant sufficient: starting liquid-cooled reactors.")
         end
     end
@@ -61,10 +62,18 @@ local function startReactor(reactor)
     return false
 end
 
-function service.startAll(managedReactors)
+function service.startReactorByData(reactorData)
+    local started = startReactor(reactorComponents[reactorData.number])
+    if started then
+        reactorData.state = ReactorState.WORKING
+    end
+    return started
+end
+
+function service.startAll(reactorsData)
     local startedAny = false
-    for _, reactor in ipairs(managedReactors or reactorComponents) do
-        if startReactor(reactor) then
+    for _, reactorData in ipairs(reactorsData) do
+        if service.startReactorByData(reactorData) then
             startedAny = true
         end
     end
@@ -78,17 +87,25 @@ local function stopReactor(reactor)
     return false
 end
 
-function service.stopAll(managedReactors)
+function service.stopReactorByData(reactorData, manual)
+    local stopped = stopReactor(reactorComponents[reactorData.number])
+    if stopped then
+        reactorData.state = manual and ReactorState.STOPPED_MANUALLY or ReactorState.STOPPED
+    end
+    return stopped
+end
+
+function service.stopAll(reactorsData)
     local stoppedAny = false
-    for _, reactor in ipairs(managedReactors or reactorComponents) do
-        if stopReactor(reactor) then
+    for _, reactorData in ipairs(reactorsData) do
+        if service.stopReactorByData(reactorData) then
             stoppedAny = true
         end
     end
     return stoppedAny
 end
 
-local function getState(reactor)
+local function getState(reactor, oldState)
     if not components.isConnected(reactor) then
         return ReactorState.ERROR
     elseif reactor.hasWork() then
@@ -98,7 +115,7 @@ local function getState(reactor)
             return ReactorState.IDLE
         end
     else
-        return ReactorState.STOPPED
+        return oldState == ReactorState.STOPPED_MANUALLY and ReactorState.STOPPED_MANUALLY or ReactorState.STOPPED
     end
 end
 
@@ -128,11 +145,11 @@ local function getMaxDecayRodTime(reactor, isLiquidCooled)
         return nil
     end
     local divisor = isLiquidCooled and 2 or 1
-    return math.floor(maxRemainingTime / divisor), math.floor(maxTotalTime/ divisor)
+    return math.floor(maxRemainingTime / divisor), math.floor(maxTotalTime / divisor)
 end
 
-local function getReactorData(reactor, number, stats)
-    local success, state = pcall(getState, reactor)
+local function getReactorData(reactor, number, stats, oldData)
+    local success, state = pcall(getState, reactor, oldData and oldData.state)
     if not success or state == ReactorState.ERROR then
         return {
             number = number,
@@ -145,7 +162,7 @@ local function getReactorData(reactor, number, stats)
         stats.energy = stats.energy + energy
     elseif state == ReactorState.IDLE then
         stats.byState.idle = stats.byState.idle + 1
-    elseif state == ReactorState.STOPPED then
+    elseif state == ReactorState.STOPPED or state == ReactorState.STOPPED_MANUALLY then
         stats.byState.stopped = stats.byState.stopped + 1
     end
     local coolingType = reactor.isActiveCooling() and CoolingType.LIQ or CoolingType.AIR
@@ -175,7 +192,7 @@ local function getReactorData(reactor, number, stats)
     }
 end
 
-local function getReactorsData()
+local function getReactorsData(oldState)
     local stats = {
         byState = {
             working = 0,
@@ -195,13 +212,14 @@ local function getReactorsData()
     }
     local data = {}
     for i = 1, #reactorComponents do
-        table.insert(data, getReactorData(reactorComponents[i], i, stats))
+        local newData = getReactorData(reactorComponents[i], i, stats, oldState and oldState.data[i])
+        table.insert(data, newData)
     end
     return { stats = stats, data = data }
 end
 
 function service.updateState(state)
-    state.reactors = getReactorsData()
+    state.reactors = getReactorsData(state.reactors)
 
     local currentCoolantCount = storageService.getItemQuantity(coolantItem)
     state.reactors.stats.coolant.available = currentCoolantCount

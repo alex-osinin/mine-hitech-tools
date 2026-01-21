@@ -44,7 +44,8 @@ config.dev = {
     useMockComponents = true,
 
     hotReloadModules = {
-        "service.chat_handler",
+        "service.handler.chat_handler",
+        "service.handler.touch_handler",
         "service.reactor_service",
         "service.radar_service",
         "service.storage_service",
@@ -66,7 +67,7 @@ config.dev = {
         reactors = {
             {
                 active = false,
-                energy = 4500,
+                energy = 9000,
                 level = 6,
                 temperature = 7200,
                 rodDecayRemaining = 1800,
@@ -74,7 +75,7 @@ config.dev = {
             },
             {
                 active = true,
-                energy = 0,
+                energy = 6984,
                 level = 5,
                 temperature = 6100,
                 rodDecayRemaining = 18000,
@@ -111,7 +112,8 @@ config.dev = {
                 rodDecayRemaining = 4528,
                 rodDecayTotal = 8000,
                 cooling = {
-                    active = true
+                    active = true,
+                    consume = 2400
                 }
             }
         },

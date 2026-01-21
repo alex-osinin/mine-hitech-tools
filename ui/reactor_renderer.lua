@@ -17,14 +17,17 @@ local startRenderPositions = {
     { x = 40, y = 11 },
     { x = 72, y = 11 }
 }
+renderer.reactorPanelStartPositions = startRenderPositions
 
 local function getStateRenderInfo(state)
     if state == reactorService.ReactorState.WORKING then
-        return { text = "[ON]", colors.green }, "▒"
+        return { text = "[ON]", color = colors.green }, "▒"
     elseif state == reactorService.ReactorState.IDLE then
         return { text = "[ON]", color = colors.green }, " "
     elseif state == reactorService.ReactorState.STOPPED then
         return { text = "[OFF]", color = colors.gray }, " "
+    elseif state == reactorService.ReactorState.STOPPED_MANUALLY then
+        return { text = "[OFF]*", color = colors.gray }, " "
     else
         return { text = "[ERR]", color =  colors.red }, "X"
     end
@@ -37,7 +40,7 @@ local function getCoolingTypeLabel(cooling)
     elseif coolingType == reactorService.CoolingType.AIR then
         return { text = "AIR", color = colors.lightblue }
     else
-        return { text = "" }
+        return { text = "", color = colors.lightred }
     end
 end
 
@@ -54,7 +57,7 @@ local function getCoolantSummaryLabel(currentLiquidCount)
     else
         stateColor = colors.cyan
     end
-    local text = string.format("%-10s", currentLiquidCountStr .. "/" .. recommendedLiquidCountStr)
+    local text = string.format("%-15s", currentLiquidCountStr .. "/" .. recommendedLiquidCountStr)
     return { text = text, color = stateColor }
 end
 
@@ -74,13 +77,13 @@ end
 -- ▌▌▒▐▐   Cool:  1200 mB/s
 -- ▌▌▒▐▐   Rods:  0h 15m
 --███████  [======·········]
-local function renderReactorCell(reactorData)
+local function renderReactorPanel(reactorData)
     local pos = startRenderPositions[reactorData.number]
 
     local statusLabel, coreSymbol = getStateRenderInfo(reactorData.state)
     local coolingTypeLabel = getCoolingTypeLabel(reactorData.cooling)
     local level = reactorData.level or "-"
-    local power = reactorData.energy and formatter.toDisplaySize(reactorData.energy, 3, "Rf/t") or "-"
+    local power = reactorData.energy and formatter.toDisplaySize(reactorData.energy, 2, "Rf/t") or "-"
     local coolant = reactorData.cooling and reactorData.cooling.consume or "-"
     local temp = reactorData.temperature and reactorData.temperature .. " °C" or "-"
     local fuelRemainingTime = formatFuelRemainingTime(reactorData.fuel and reactorData.fuel.remainingTime)
@@ -120,15 +123,15 @@ end
 
 local function renderSummary(stats)
     gui.text(8, 19, "Output:")
-    gui.text(16, 19, string.format("%-10s", formatter.toDisplaySize(stats.energy, 3, "Rf/t")), colors.lightgreen)
+    gui.text(16, 19, string.format("%-15s", formatter.toDisplaySize(stats.energy, 3, "Rf/t")), colors.lightgreen)
     if stats.byCoolingType.liquid > 0 then
-        gui.text(72, 19, "Consumption:")
-        gui.text(85, 19, string.format("%-10s", stats.coolant.consumption .. " mB/s"), colors.cyan)
-
         --fixme разобраться в чем измерять жидкость
         gui.text(40, 19, "Coolant:")
         local coolantInfoLabel = getCoolantSummaryLabel(stats.coolant.available)
         gui.label(49, 19, coolantInfoLabel)
+
+        gui.text(72, 19, "Consumption:")
+        gui.text(85, 19, string.format("%-15s", stats.coolant.consumption .. " mB/s"), colors.cyan)
     end
 end
 
@@ -137,7 +140,7 @@ function renderer.renderReactorSection(state)
 
     local data = state.reactors.data or {}
     for i = 1, math.min(#data, 6) do
-        renderReactorCell(data[i])
+        renderReactorPanel(data[i])
     end
 end
 

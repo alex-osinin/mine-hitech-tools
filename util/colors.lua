@@ -4,6 +4,7 @@ COLORS = {
     gray = 0x878787,
     lightgray = 0xF0F0F0,
     red = 0xff0000,
+    lightred = 0xf5625b,
     pink = 0xfc9a95,
     orange = 0xff6600,
     brightorange = 0xff4000,
