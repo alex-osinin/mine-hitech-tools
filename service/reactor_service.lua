@@ -62,7 +62,7 @@ local function startReactor(reactor)
     return false
 end
 
-function service.startReactorByData(reactorData)
+local function startReactorByData(reactorData)
     local started = startReactor(reactorComponents[reactorData.number])
     if started then
         reactorData.state = ReactorState.WORKING
@@ -73,7 +73,7 @@ end
 function service.startAll(reactorsData)
     local startedAny = false
     for _, reactorData in ipairs(reactorsData) do
-        if service.startReactorByData(reactorData) then
+        if startReactorByData(reactorData) then
             startedAny = true
         end
     end
@@ -87,7 +87,7 @@ local function stopReactor(reactor)
     return false
 end
 
-function service.stopReactorByData(reactorData, manual)
+local function stopReactorByData(reactorData, manual)
     local stopped = stopReactor(reactorComponents[reactorData.number])
     if stopped then
         reactorData.state = manual and ReactorState.STOPPED_MANUALLY or ReactorState.STOPPED
@@ -98,11 +98,20 @@ end
 function service.stopAll(reactorsData)
     local stoppedAny = false
     for _, reactorData in ipairs(reactorsData) do
-        if service.stopReactorByData(reactorData) then
+        if stopReactorByData(reactorData) then
             stoppedAny = true
         end
     end
     return stoppedAny
+end
+
+function service.toggleReactor(reactorData, manual)
+    local currentState = reactorData and reactorData.state
+    if currentState == ReactorState.WORKING then
+        stopReactorByData(reactorData, manual)
+    elseif currentState == ReactorState.STOPPED or currentState == ReactorState.STOPPED_MANUALLY then
+        startReactorByData(reactorData)
+    end
 end
 
 local function getState(reactor, oldState)

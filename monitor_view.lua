@@ -152,7 +152,7 @@ while running do
     if name == "touch" then
         ui.debug("touch")
         local x, y = a2, a3
-        safeCall("touchHandler", touchHandler.handle, x, y, state, log)
+        safeCall("touchHandler", touchHandler.handle, x, y, state)
         ui.debug("-")
     elseif name == "key_down" then
         ui.debug("key")
