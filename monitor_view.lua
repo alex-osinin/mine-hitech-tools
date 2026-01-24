@@ -16,6 +16,7 @@ local keyboard = require("keyboard")
 local ui = require("ui.monitor_renderer")
 local chatHandler = require("service.handler.chat_handler")
 local touchHandler = require("service.handler.touch_handler")
+local modemHandler = require("service.handler.modem_handler")
 local tpsCounter = require("service.tps_counter")
 local reactorService = require("service.reactor_service")
 local fluxService = require("service.energy_service")
@@ -71,6 +72,7 @@ local function initComponents()
     radarService.init(log)
     reactorService.init(log)
     chatHandler.init(log)
+    modemHandler.init(log)
     log.info("Component initialization completed")
 end
 
@@ -148,7 +150,7 @@ while running do
     if timeout > 0.25 then timeout = 0.25 end
 
     ui.debug("event")
-    local name, _, a2, a3, _ = event.pull(timeout)
+    local name, _, a2, a3, _, a5 = event.pull(timeout)
     if name == "touch" then
         ui.debug("touch")
         local x, y = a2, a3
@@ -165,6 +167,11 @@ while running do
         ui.debug("chat")
         local nick, msg = a2, a3
         safeCall("chatHandler", chatHandler.handle, nick, msg, state, ctx)
+        ui.debug("-")
+    elseif name == "modem_message" then
+        ui.debug("modem")
+        local from, payload = a2, a5
+        safeCall("modemHandler", modemHandler.handle, from, payload, log)
         ui.debug("-")
     end
     ui.debug("-")

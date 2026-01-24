@@ -41,11 +41,13 @@ config.radar = {
 
 config.dev = {
     enabled = true,
+    useModem = true,
     useMockComponents = true,
 
     hotReloadModules = {
         "service.handler.chat_handler",
         "service.handler.touch_handler",
+        "service.handler.modem_handler",
         "service.reactor_service",
         "service.radar_service",
         "service.storage_service",
