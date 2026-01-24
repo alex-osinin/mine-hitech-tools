@@ -1,8 +1,8 @@
 local renderer = {}
 local config = require("config")
 local gui = require("ui.monitor_gui")
-local reactorRender = require("ui.reactor_renderer")
-local radarRender = require("ui.radar_renderer")
+local reactorRender = require("ui.monitor.reactor_renderer")
+local radarRender = require("ui.monitor.radar_renderer")
 
 local colors = require("util.colors")
 local formatter = require("util.formatter")

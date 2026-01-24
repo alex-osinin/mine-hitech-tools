@@ -1,6 +1,6 @@
 local service = {}
 
-local reactorRenderer = require("ui.reactor_renderer")
+local reactorRenderer = require("ui.monitor.reactor_renderer")
 local reactorService = require("service.reactor_service")
 
 local function isClickInsideButton(clickX, clickY, buttonX, buttonY, buttonW, buttonH)

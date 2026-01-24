@@ -13,7 +13,7 @@ local computer = require("computer")
 local event = require("event")
 local keyboard = require("keyboard")
 
-local ui = require("ui.monitor_renderer")
+local ui = require("ui.monitor.monitor_renderer")
 local chatHandler = require("service.handler.chat_handler")
 local touchHandler = require("service.handler.touch_handler")
 local modemHandler = require("service.handler.modem_handler")
