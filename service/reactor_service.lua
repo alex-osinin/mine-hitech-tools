@@ -45,60 +45,60 @@ function service.controlReactors(reactorsData, log)
 
     local currentLiquidCount = reactorsData.stats.coolant.available
     if currentLiquidCount < coolingSettings.minimum then
-        if service.stopAll(getManagedReactors(reactorsData)) then
+        if service.stopReactors(getManagedReactors(reactorsData)) then
             log.warn("Coolant low: stopping liquid-cooled reactors.")
         end
     elseif currentLiquidCount >= coolingSettings.recommended then
-        if service.startAll(getManagedReactors(reactorsData)) then
+        if service.startReactors(getManagedReactors(reactorsData)) then
             log.info("Coolant sufficient: starting liquid-cooled reactors.")
         end
     end
 end
 
-local function startReactor(reactor)
-    if reactor and not reactor.hasWork() then
-        return reactor.activate()
+local function startComponent(reactorComponent)
+    if reactorComponent and not reactorComponent.hasWork() then
+        return reactorComponent.activate()
     end
     return false
 end
 
-local function startReactorByData(reactorData)
-    local started = startReactor(reactorComponents[reactorData.number])
+function service.startReactor(reactorData)
+    local started = startComponent(reactorComponents[reactorData.number])
     if started then
         reactorData.state = ReactorState.WORKING
     end
     return started
 end
 
-function service.startAll(reactorsData)
+function service.startReactors(reactorsData)
     local startedAny = false
     for _, reactorData in ipairs(reactorsData) do
-        if startReactorByData(reactorData) then
+        if service.startReactor(reactorData) then
             startedAny = true
         end
     end
     return startedAny
 end
 
-local function stopReactor(reactor)
-    if reactor and reactor.hasWork() then
-        return reactor.deactivate()
+local function stopComponent(reactorComponent)
+    if reactorComponent and reactorComponent.hasWork() then
+        return reactorComponent.deactivate()
     end
     return false
 end
 
-local function stopReactorByData(reactorData, manual)
-    local stopped = stopReactor(reactorComponents[reactorData.number])
+function service.stopReactor(reactorData, manual)
+    local stopped = stopComponent(reactorComponents[reactorData.number])
     if stopped then
         reactorData.state = manual and ReactorState.STOPPED_MANUALLY or ReactorState.STOPPED
     end
     return stopped
 end
 
-function service.stopAll(reactorsData)
+function service.stopReactors(reactorsData, manual)
     local stoppedAny = false
     for _, reactorData in ipairs(reactorsData) do
-        if stopReactorByData(reactorData) then
+        if service.stopReactor(reactorData, manual) then
             stoppedAny = true
         end
     end
@@ -108,9 +108,9 @@ end
 function service.toggleReactor(reactorData, manual)
     local currentState = reactorData and reactorData.state
     if currentState == ReactorState.WORKING then
-        stopReactorByData(reactorData, manual)
+        service.stopReactor(reactorData, manual)
     elseif currentState == ReactorState.STOPPED or currentState == ReactorState.STOPPED_MANUALLY then
-        startReactorByData(reactorData)
+        service.startReactor(reactorData)
     end
 end
 

@@ -14,7 +14,7 @@ local event = require("event")
 local keyboard = require("keyboard")
 
 local ui = require("ui.monitor_renderer")
-local chatHandler = require("service.chat_handler")
+local chatHandler = require("service.handler.chat_handler")
 local touchHandler = require("service.handler.touch_handler")
 local tpsCounter = require("service.tps_counter")
 local reactorService = require("service.reactor_service")
@@ -163,9 +163,8 @@ while running do
         ui.debug("-")
     elseif name == "chat_message" then
         ui.debug("chat")
-        local nick = a2
-        local msg = a3
-        safeCall("chatHandler", chatHandler.handle, nick, msg, ctx)
+        local nick, msg = a2, a3
+        safeCall("chatHandler", chatHandler.handle, nick, msg, state, ctx)
         ui.debug("-")
     end
     ui.debug("-")

@@ -31,14 +31,34 @@ local function initReactors()
     chatbox.say("Готово")
 end
 
-local function stopReactors()
-    chatbox.say("§e§lВыключаю реакторы")
-    reactorService.stopAll()
+local function stopReactors(state, reactorNumber)
+    if reactorNumber then
+        local reactorData = state.reactors.data[reactorNumber]
+        if reactorData then
+            chatbox.say("§e§lВыключаю реактор #" .. reactorNumber)
+            reactorService.stopReactor(reactorData, true)
+        else
+            chatbox.say("§cРеактор #" .. reactorNumber .. " не найден")
+        end
+    else
+        chatbox.say("§e§lВыключаю все реакторы")
+        reactorService.stopReactors(state.reactors.data, true)
+    end
 end
 
-local function startReactors()
-    chatbox.say("§e§lЗапускаю реакторы")
-    reactorService.startAll()--fixme dont work
+local function startReactors(state, reactorNumber)
+    if reactorNumber then
+        local reactorData = state.reactors.data[reactorNumber]
+        if reactorData then
+            chatbox.say("§e§lЗапускаю реактор #" .. reactorNumber)
+            reactorService.startReactor(reactorData)
+        else
+            chatbox.say("§cРеактор #" .. reactorNumber .. " не найден")
+        end
+    else
+        chatbox.say("§e§lЗапускаю все реакторы")
+        reactorService.startReactors(state.reactors.data)
+    end
 end
 
 local function tps()
@@ -56,7 +76,12 @@ local function reboot(ctx)
     ctx.reboot()
 end
 
-function service.handle(nick, msg, ctx)
+local function parseReactorNumber(msg)
+    local num = msg:match("%s+(%d+)$")
+    return num and tonumber(num) or nil
+end
+
+function service.handle(nick, msg, state, ctx)
     if not (permissions and permissions[nick]) then
         return false
     end
@@ -64,10 +89,10 @@ function service.handle(nick, msg, ctx)
         help()
     elseif "@r_init" == msg then
         initReactors()
-    elseif "@r_stop" == msg then
-        stopReactors()
-    elseif "@r_start" == msg then
-        startReactors()
+    elseif msg:match("^@r_stop") then
+        stopReactors(state, parseReactorNumber(msg))
+    elseif msg:match("^@r_start") then
+        startReactors(state, parseReactorNumber(msg))
     elseif msg == "@tps" or msg == "@TPS" then
         tps()
     elseif "@exit" == msg then
