@@ -1,6 +1,6 @@
-package.path = package.path .. ";/usr/lib/reactorctl/?.lua"
+package.path = package.path .. ";/usr/lib/reactorctl/?.lua;/etc/?.lua"
 package.loaded["config"] = nil
-PROGRAM = "reactorctl"
+_G.PROGRAM = "reactorctl"
 local config = require(_G.PROGRAM .. "_config")
 
 -- only for developing

@@ -1,6 +1,6 @@
 local renderer = {}
 local config = require(_G.PROGRAM .. "_config")
-local gui = require("ui.monitor_gui")
+local gui = require("ui.monitor.monitor_gui")
 
 local reactorService = require("service.reactor_service")
 
