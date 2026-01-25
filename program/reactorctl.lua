@@ -1,5 +1,7 @@
+package.path = package.path .. ";/usr/lib/reactorctl/?.lua"
 package.loaded["config"] = nil
-local config = require("config")
+PROGRAM = "reactorctl"
+local config = require(_G.PROGRAM .. "_config")
 
 -- only for developing
 if config.dev and config.dev.enabled then
@@ -24,7 +26,7 @@ local radarService = require("service.radar_service")
 local storageService = require("service.storage_service")
 
 local loggerFactory = require("util.logger")
-local log = loggerFactory.new({ file = "monitor_view.log" })
+local log = loggerFactory.new({ file = "reactorctl.log" })
 
 local running = true
 

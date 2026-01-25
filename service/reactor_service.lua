@@ -2,7 +2,7 @@ local service = {}
 
 local storageService = require("service.storage_service")
 
-local config = require("config")
+local config = require(_G.PROGRAM .. "_config")
 local components = require("util.components")
 
 local ReactorState = {

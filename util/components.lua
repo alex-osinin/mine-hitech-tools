@@ -1,7 +1,7 @@
 local util = {}
 
 local component = require("component")
-local config = require("config")
+local config = require(_G.PROGRAM .. "_config")
 local mock
 if config.dev and config.dev.enabled and config.dev.useMockComponents then
     mock = require("test.mock_components")

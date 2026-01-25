@@ -1,6 +1,6 @@
 local service = {}
 
-local config = require("config")
+local config = require(_G.PROGRAM .. "_config")
 local fs = require("filesystem")
 local computer = require("computer")
 

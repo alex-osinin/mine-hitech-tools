@@ -1,5 +1,5 @@
 local renderer = {}
-local config = require("config")
+local config = require(_G.PROGRAM .. "_config")
 local gui = require("ui.monitor_gui")
 
 local buffer = gui.allocateBuffer(46, 7)

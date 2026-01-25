@@ -1,6 +1,6 @@
 local service = {}
 
-local config = require("config")
+local config = require(_G.PROGRAM .. "_config")
 local tpsService = require("service.tps_counter")
 local reactorService = require("service.reactor_service")
 local components = require("util.components")

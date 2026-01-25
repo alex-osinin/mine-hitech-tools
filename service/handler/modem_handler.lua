@@ -1,6 +1,6 @@
 local service = {}
 
-local config = require("config")
+local config = require(_G.PROGRAM .. "_config")
 local components = require("util.components")
 local serialization = require("serialization")
 local computer = require("computer")
