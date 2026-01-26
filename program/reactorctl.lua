@@ -168,7 +168,7 @@ while running do
     elseif name == "chat_message" then
         ui.debug("chat")
         local nick, msg = a2, a3
-        safeCall("chatHandler", chatHandler.handle, nick, msg, state, ctx)
+        safeCall("chatHandler", chatHandler.handle, nick, msg, state, ctx, log)
         ui.debug("-")
     elseif name == "modem_message" then
         ui.debug("modem")

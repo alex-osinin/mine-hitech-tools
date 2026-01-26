@@ -1,7 +1,6 @@
 local service = {}
 
 local config = require(_G.PROGRAM .. "_config")
-local tpsService = require("service.tps_counter")
 local reactorService = require("service.reactor_service")
 local components = require("util.components")
 
@@ -25,9 +24,9 @@ local function help()
     chatbox.say("Made by orange_juice_")
 end
 
-local function initReactors()
+local function initReactors(log)
     chatbox.say("§e§lИнициализирую реакторы")
-    reactorService.init()
+    reactorService.init(log)
     chatbox.say("Готово")
 end
 
@@ -61,9 +60,8 @@ local function startReactors(state, reactorNumber)
     end
 end
 
-local function tps()
-    local tps = string.format("%.1f", tpsService.calc())
-    chatbox.say("§fTPS: " .. tps)
+local function tps(state)
+    chatbox.say("§fTPS: " .. state.tps.value and string.format("%.1f", state.tps.value) or "-")
 end
 
 local function exit(ctx)
@@ -81,23 +79,24 @@ local function parseReactorNumber(msg)
     return num and tonumber(num) or nil
 end
 
-function service.handle(nick, msg, state, ctx)
+function service.handle(nick, msg, state, ctx, log)
     if not (permissions and permissions[nick]) then
         return false
     end
+    msg = msg and msg:lower() or ""
     if "@help" == msg then
         help()
-    elseif "@r_init" == msg then
-        initReactors()
+    elseif msg:match("^@r_init") then
+        initReactors(log)
     elseif msg:match("^@r_stop") then
         stopReactors(state, parseReactorNumber(msg))
     elseif msg:match("^@r_start") then
         startReactors(state, parseReactorNumber(msg))
-    elseif msg == "@tps" or msg == "@TPS" then
-        tps()
-    elseif "@exit" == msg then
+    elseif msg:match("^@tps") then
+        tps(state)
+    elseif msg == "@exit" then
         exit(ctx)
-    elseif "@reboot" == msg then
+    elseif msg == "@reboot" then
         reboot(ctx)
     end
 end
