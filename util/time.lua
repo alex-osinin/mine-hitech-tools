@@ -4,7 +4,7 @@ local config = require(_G.PROGRAM .. "_config")
 local fs = require("filesystem")
 local computer = require("computer")
 
-local t_correction = config.user.timezone * 3600
+local t_correction = config.user and config.user.timezone and config.user.timezone * 3600 or 0
 
 local function fileTime(file)
     local f = io.open(file, "w")

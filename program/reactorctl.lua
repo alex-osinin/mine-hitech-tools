@@ -86,11 +86,9 @@ local function safeCall(name, fn, ...)
     local ok, err = xpcall(runner, debug.traceback)
     if not ok then
         log.errorT(name, err)
-        if type(err) == "table" and err.__fatal then
-            ui.cleanup()
-            io.stderr:write(err.message or ("Fatal error in " .. tostring(name)))
-            os.exit(err.code or 1)
-        end
+        ui.cleanup()
+        io.stderr:write(err or ("Fatal error in " .. tostring(name)))
+        os.exit(1)
     end
 end
 

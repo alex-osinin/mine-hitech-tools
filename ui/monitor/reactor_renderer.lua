@@ -29,7 +29,7 @@ local function getStateRenderInfo(state)
     elseif state == reactorService.ReactorState.STOPPED_MANUALLY then
         return { text = "[OFF]*", color = colors.gray }, " "
     else
-        return { text = "[ERR]", color =  colors.red }, "X"
+        return { text = "[ERR]", color = colors.red }, "X"
     end
 end
 
@@ -62,7 +62,6 @@ local function getCoolantSummaryLabel(currentLiquidCount)
 end
 
 local function formatFuelRemainingTime(seconds)
-
     if not seconds then
         return "-"
     end
@@ -132,6 +131,8 @@ local function renderSummary(stats)
 
         gui.text(72, 19, "Consumption:")
         gui.text(85, 19, string.format("%-15s", stats.coolant.consumption .. " mB/s"), colors.cyan)
+    else
+        gui.fill(40, 19, 64, 1, " ")
     end
 end
 

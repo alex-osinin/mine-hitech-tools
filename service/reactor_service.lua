@@ -230,8 +230,10 @@ end
 function service.updateState(state)
     state.reactors = getReactorsData(state.reactors)
 
-    local currentCoolantCount = storageService.getItemQuantity(coolantItem)
-    state.reactors.stats.coolant.available = currentCoolantCount
+    if state.reactors.stats.byCoolingType.liquid ~= 0 then
+        local currentCoolantCount = storageService.getItemQuantity(coolantItem)
+        state.reactors.stats.coolant.available = currentCoolantCount
+    end
 end
 
 return service

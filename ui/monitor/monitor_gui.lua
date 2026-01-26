@@ -114,7 +114,7 @@ function lib.progressBar(x, y, segmentCount, value, maxValue, prefix, suffix)
 end
 
 function lib.allocateBuffer(w, h)
-    return { index = gpu.allocateBuffer(w, h), width = w, height = h}
+    return { index = gpu.allocateBuffer(w, h), width = w, height = h }
 end
 
 function lib.activateBuffer(buffer)

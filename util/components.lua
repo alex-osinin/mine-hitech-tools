@@ -11,7 +11,7 @@ function util.requireComponent(typeName, log)
     local c = util.findFirst(typeName, log)
     if not c then
         local msg = string.format("Missing component: %s\n", typeName)
-        error({ __fatal = true, code = 1, message = msg }, 0)
+        error(msg)
     end
     return c
 end
