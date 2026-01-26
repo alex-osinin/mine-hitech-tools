@@ -1,6 +1,7 @@
 local service = {}
 local components = require("util.components")
 local me
+local cache = {}
 
 function service.init(log)
     me = components.requireComponent("me_controller", log)
@@ -29,6 +30,7 @@ local function searchItem(itemsInNetwork, itemInfo)
     return 0
 end
 
+-- todo add cache support
 function service.getItemsQuantity(itemInfos)
     local itemsInNetwork = me.getItemsInNetwork()
     local sizes = {}
@@ -36,18 +38,24 @@ function service.getItemsQuantity(itemInfos)
         if itemsInNetwork ~= false then
             sizes[i] = searchItem(itemsInNetwork, itemInfos[i])
         else
-            sizes[i] = "-"
+            sizes[i] = -1
         end
     end
     return sizes
 end
 
 function service.getItemQuantity(itemInfo)
-    local item, _, _ = me.getItemsInNetwork(itemInfo)
-    if not item then
-        return -1
+    if not itemInfo or not itemInfo.name then return nil end
+    local items, problem, _ = me.getItemsInNetwork(itemInfo)
+    local item
+    if problem == "cooldown" then
+        item = cache[itemInfo.name]
+    else
+        item = items and items[1] or nil
+        cache[itemInfo.name] = item
     end
-    return item[1].size
+
+    return item and item.size or -1
 end
 
 function service.getCraftables(itemInfo)
