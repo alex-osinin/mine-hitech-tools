@@ -32,7 +32,16 @@ local function mkFluxStorage()
             return { name = fluxCfg.networkName or "MOCK-NET" }
         end,
         getEnergyInfo = function()
-            return { energyInput = fluxCfg.energyInput or 0, totalBuffer = fluxCfg.totalBuffer or 0}
+            -- Имитируем "сырой" energyInput: базовое значение + джиттер ±15% и редкие
+            -- резкие всплески — чтобы в dev-режиме было видно работу EMA-сглаживания.
+            local base = fluxCfg.energyInput or 0
+            local jitter = base * (math.random() * 0.3 - 0.15)
+            local spike = 0
+            if math.random() < 0.1 then
+                spike = base * math.random() * 1.5
+            end
+            local input = math.max(0, math.floor(base + jitter + spike))
+            return { energyInput = input, totalBuffer = fluxCfg.totalBuffer or 0 }
         end
     }
 end

@@ -61,7 +61,8 @@ local state = {
     },
     energy = {
         networkName = 0,
-        input = 0
+        input = 0,
+        buffer = 0
     },
     tps = { value = 0 },
     radar = { players = {} }

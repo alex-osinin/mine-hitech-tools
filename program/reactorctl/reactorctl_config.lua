@@ -25,9 +25,14 @@ local config = {
     updateTimers = {
         reactors = 10,
         tps = 5,
-        energy = 10,
+        energy = 1,
         radar = 1,
         render = 0.2
+    },
+    energy = {
+        -- Окно усреднения input в секундах
+        -- Значение на экране обновляется раз в это время.
+        windowSeconds = 5
     },
     radar = {
         maxUsers = 14
