@@ -121,10 +121,12 @@ local function renderReactorPanel(reactorData)
 end
 
 local function renderSummary(stats)
+    if stats.total == 0 then
+        return
+    end
     gui.text(8, 19, "Output:")
     gui.text(16, 19, string.format("%-15s", formatter.toDisplaySize(stats.energy, 3, "Rf/t")), colors.lightgreen)
     if stats.byCoolingType.liquid > 0 then
-        --fixme разобраться в чем измерять жидкость
         gui.text(40, 19, "Coolant:")
         local coolantInfoLabel = getCoolantSummaryLabel(stats.coolant.available)
         gui.label(49, 19, coolantInfoLabel)

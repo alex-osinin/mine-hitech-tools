@@ -16,7 +16,7 @@ end
 function factory.new(opts)
     opts = opts or {}
     local dir = opts.dir or "/var/log"
-    local file = opts.file or "view.log"
+    local file = opts.file or _G.PROGRAM and _G.PROGRAM .. ".log" or "hitech.log"
     local path = dir .. "/" .. file
 
     ensureDir(dir)

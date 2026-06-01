@@ -129,6 +129,7 @@ function lib.drawBuffer(destX, destY, buffer)
 end
 
 function lib.cleanup()
+    -- fixme проблемы с накоплением буферов
     gpu.freeAllBuffers()
     term.clear()
 end

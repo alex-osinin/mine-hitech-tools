@@ -1,0 +1,50 @@
+Component: me_controller
+Address: 91a14ac9-1ad7-42ea-8dd0-8eb1c6c70b0b
+
+Method: canExtract
+Docs: function():number -- Returns whether this component can have energy extracted from the connected side.
+
+Method: getFluidsInNetwork
+Docs: function():table -- Get a list of the stored fluids in the network.
+
+Method: getStoredPower
+Docs: function():number -- Get the stored power in the network.
+
+Method: getMaxStoredPower
+Docs: function():number -- Get the maximum stored power in the network.
+
+Method: getCraftables
+Docs: function([filter:table]):table -- Get a list of known item recipes. These can be used to issue crafting requests.
+
+Method: getMaxEnergyStored
+Docs: function():number -- Returns the maximum amount of stored energy on the connected side.
+
+Method: isNetworkPowered
+Docs: function():boolean -- True if the AE network is considered online
+
+Method: getEnergyStored
+Docs: function():number -- Returns the amount of stored energy on the connected side.
+
+Method: getAvgPowerInjection
+Docs: function():number -- Get the average power injection into the network.
+
+Method: store
+Docs: function([filter:table, dbAddress:string, startSlot:number, count:number]): bool -- Store items in the network matching the specified filter in the database with the specified address.
+
+Method: getAvgPowerUsage
+Docs: function():number -- Get the average power usage of the network.
+
+Method: canReceive
+Docs: function():number -- Returns whether this component can receive energy on the connected side.
+
+Method: getItemsInNetwork
+Docs: function([filter:table]):table -- Get a list of the stored items in the network.
+
+Method: getCpus
+Docs: function():table -- Get a list of tables representing the available CPUs in the network.
+
+Method: getIdlePowerUsage
+Docs: function():number -- Get the idle power usage of the network.
+
+Method: getEnergyDemand
+Docs: function():number -- Returns the energy demand on the AE network

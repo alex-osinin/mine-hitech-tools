@@ -1,3 +1,4 @@
+package.path = package.path .. ";/usr/lib/reactorctl/?.lua;/etc/?.lua"
 package.loaded["config"] = nil
 _G.PROGRAM = "tps_meter"
 local config = require(_G.PROGRAM .. "_config")

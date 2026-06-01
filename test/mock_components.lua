@@ -103,16 +103,11 @@ local function mkMEController()
         end,
 
         getItemsInNetwork = function(itemInfo)
-            -- В вашем коде есть 2 режима использования:
-            -- 1) me.getItemsInNetwork() -> список предметов в сети
-            -- 2) me.getItemsInNetwork(itemInfo) -> { { size = N } }, ...
             if itemInfo == nil then
                 return {
                     { name = "ae2fc:fluid_drop", damage = nil, size = meCfg.coolantAmount or 0 }
                 }
             end
-
-            -- если спрашивают именно "охлаждайку" — отдаём настроенное количество
             if itemInfo.name == "ae2fc:fluid_drop" then
                 return { { size = meCfg.coolantAmount or 0 } }, nil, nil
             end

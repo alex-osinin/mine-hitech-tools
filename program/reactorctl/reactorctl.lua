@@ -26,7 +26,7 @@ local radarService = require("service.radar_service")
 local storageService = require("service.storage_service")
 
 local loggerFactory = require("util.logger")
-local log = loggerFactory.new({ file = "reactorctl.log" })
+local log = loggerFactory.new()
 
 local running = true
 
