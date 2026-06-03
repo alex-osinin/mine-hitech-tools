@@ -11,11 +11,10 @@ local W, H = config.screen.width, config.screen.height
 
 function renderer.initUI(log)
     log.info("Initializing UI...")
-    gui.init(W, H, colors.darkblue, colors.white)
+    gui.init(W, H, colors.bgScreen, colors.textPrimary)
 
-    local frameColor = 0x2B3A52
     -- панель реакторов (заголовок вписан в рамку)
-    gui.panel(1, 1, W - 1, 21, "REACTORS", frameColor, colors.cyan)
+    gui.panel(1, 1, W - 1, 21, "REACTORS", colors.bgFrame, colors.teal)
     log.info("UI initialization completed")
 end
 
@@ -27,22 +26,22 @@ local function renderEnergy(state)
     local networkName = string.format("%-37s", state.energy.networkName or "")
     gui.text(13, 23, networkName)
     local formattedEnergy = string.format("%-37s", formatter.toDisplaySize(state.energy.input, 3, "Rf/t"))
-    gui.text(13, 25, formattedEnergy, colors.lightgreen)
+    gui.text(13, 25, formattedEnergy, colors.accentEnergy)
     local formattedBuffer = string.format("%-37s", formatter.toDisplaySize(state.energy.buffer, 3, "Rf"))
-    gui.text(13, 27, formattedBuffer, colors.lightgreen)
+    gui.text(13, 27, formattedBuffer, colors.accentEnergy)
 end
 
 local function getTPSLabel(tps)
     local formattedTps = tps and string.format("%-37.1f", tps) or "-"
     local color
     if not tps then
-        color = COLORS.white
+        color = colors.white
     elseif tps > 15 then
-        color = COLORS.green
+        color = colors.statusOn
     elseif tps > 10 then
-        color = COLORS.yellow
+        color = colors.statusWarn
     else
-        color = COLORS.red
+        color = colors.statusError
     end
     return { text = formattedTps, color = color }
 end
@@ -59,7 +58,7 @@ end
 
 function renderer.debug(stage)
     if config.dev and config.dev.enabled then
-        gui.text(W - 12, H, string.format("%-10s", stage), colors.red)
+        gui.text(W - 12, H, string.format("%-10s", stage), colors.statusError)
     end
 end
 

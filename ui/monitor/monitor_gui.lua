@@ -135,8 +135,8 @@ function lib.bar(x, y, w, value, maxValue, fillColor, emptyColor)
     end
     if frac < 0 then frac = 0 elseif frac > 1 then frac = 1 end
     local backup = currentBackground
-    lib.setForeground(emptyColor or colors.gray)
-    lib.setBackground(emptyColor or colors.gray)
+    lib.setForeground(emptyColor or colors.slate)
+    lib.setBackground(emptyColor or colors.slate)
     gpu.fill(x, y, w, 1, " ")
     local full = math.floor(frac * w)
     lib.setForeground(fillColor)

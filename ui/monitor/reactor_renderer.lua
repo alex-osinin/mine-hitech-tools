@@ -24,34 +24,34 @@ renderer.reactorPanelStartPositions = startRenderPositions
 
 local function getStateRenderInfo(state)
     if state == ReactorState.WORKING then
-        return colors.green, "▒"
+        return colors.statusOn, "▒"
     elseif state == ReactorState.IDLE then
-        return colors.yellow, " "
+        return colors.statusWarn, " "
     elseif state == ReactorState.STOPPED
         or state == ReactorState.STOPPED_MANUALLY then
-        return colors.gray, " "
+        return colors.statusOff, " "
     else
-        return colors.red, "X"
+        return colors.statusError, "X"
     end
 end
 
 local function getCoolingTypeLabel(cooling)
     local coolingType = cooling and cooling.type or "-"
     if coolingType == CoolingType.LIQ then
-        return { text = "LIQ", color = colors.cyan }
+        return { text = "LIQ", color = colors.accentCoolant }
     elseif coolingType == CoolingType.AIR then
-        return { text = "AIR", color = colors.lightblue }
+        return { text = "AIR", color = colors.accentAir }
     else
-        return { text = "", color = colors.lightred }
+        return { text = "", color = colors.accentError }
     end
 end
 
 local function getCoolantLabel(cooling)
     local coolingType = cooling and cooling.type or "-"
     if coolingType == CoolingType.LIQ then
-        return { text = (cooling.consume or "-") .. " mB/s", color = colors.cyan }
+        return { text = (cooling.consume or "-") .. " mB/s", color = colors.accentCoolant }
     else
-        return { text = "-", color = colors.gray }
+        return { text = "-", color = colors.textMuted }
     end
 end
 
@@ -63,13 +63,13 @@ local function getCoolantSummaryLabel(currentLiquidCount)
     local coolingSettings = config.reactors.cooling.limits
     local warning = false
     if currentLiquidCount < coolingSettings.minimum then
-        stateColor = colors.red
+        stateColor = colors.statusError
         warning = true
     elseif currentLiquidCount < coolingSettings.recommended then
-        stateColor = colors.yellow
+        stateColor = colors.statusWarn
         warning = true
     else
-        stateColor = colors.cyan
+        stateColor = colors.accentCoolant
     end
     local text = currentLiquidCountStr .. "/" .. recommendedLiquidCountStr .. (warning and " ⚠" or "")
     return { text = text, color = stateColor }
@@ -87,20 +87,10 @@ end
 local function deriveCard(reactorData)
     local statusColor, coreSymbol = getStateRenderInfo(reactorData.state)
     if reactorData.state == ReactorState.ERROR then
-        --local undefinedValueLabel = { text = "-", color = colors.gray }
-        --local emptyValueLabel = { text = " ", color = colors.gray }
         return {
             statusColor = statusColor,
-            columnColor = colors.red,
-            coreSymbol = coreSymbol,
-            --        coolingTypeLabel = emptyValueLabel,
-            --        levelLabel = undefinedValueLabel,
-            --        powerLabel = undefinedValueLabel,
-            --        coolantLabel = undefinedValueLabel,
-            --        tempLabel = undefinedValueLabel,
-            --        rodsLabel = undefinedValueLabel,
-            --        rodsPercentLabel = emptyValueLabel,
-            --        fuelBar = { color = colors.green }
+            columnColor = colors.statusError,
+            coreSymbol = coreSymbol
         }
     end
 
@@ -110,21 +100,21 @@ local function deriveCard(reactorData)
     local time = formatFuelRemainingTime(reactorData.fuel and reactorData.fuel.remainingTime)
     local coolingTypeLabel = getCoolingTypeLabel(reactorData.cooling)
     -- цвет температуры по значению
-    local tempColor = colors.gray
+    local tempColor = colors.textMuted
     if reactorData.temperature and reactorData.temperature > 0 then
-        tempColor = reactorData.temperature >= 8000 and colors.red or colors.orange
+        tempColor = reactorData.temperature >= 8000 and colors.statusError or colors.accentTemp
     end
 
     -- бар = остаток жизненного цикла стержней в %
     local total = reactorData.fuel and reactorData.fuel.totalTime
     local remaining = reactorData.fuel and reactorData.fuel.remainingTime
     local pct = (total and total > 0 and remaining) and math.floor(remaining / total * 100) or nil
-    local fuelColor = colors.green
+    local fuelColor = colors.statusOn
     if pct then
         if pct < 10 then
-            fuelColor = colors.red
+            fuelColor = colors.statusError
         elseif pct < 25 then
-            fuelColor = colors.yellow
+            fuelColor = colors.statusWarn
         end
     end
     local rodsPercent = pct and (pct .. "%") or "-"
@@ -134,12 +124,12 @@ local function deriveCard(reactorData)
         columnColor = coolingTypeLabel.color,
         coreSymbol = coreSymbol,
         coolingTypeLabel = coolingTypeLabel,
-        levelLabel = { text = level, color = colors.white },
-        powerLabel = { text = power, color = colors.lightgreen },
+        levelLabel = { text = level, color = colors.textPrimary },
+        powerLabel = { text = power, color = colors.accentEnergy },
         coolantLabel = getCoolantLabel(reactorData.cooling),
         tempLabel = { text = temperature, color = tempColor },
-        rodsLabel = { text = time, color = colors.white },
-        rodsPercentLabel = { text = rodsPercent, color = colors.gray },
+        rodsLabel = { text = time, color = colors.textPrimary },
+        rodsPercentLabel = { text = rodsPercent, color = colors.textMuted },
         fuelBar = { remaining = remaining, total = total, color = fuelColor }
     }
 end
@@ -156,7 +146,7 @@ local function renderReactorPanel(reactorData)
     if not pos then return end
     local renderData = deriveCard(reactorData)
 
-    gui.activateBuffer(buffer, colors.darkblue2)
+    gui.activateBuffer(buffer, colors.bgCard)
     -- статус-полоса
     gui.fill(1, 1, 1, CARD_H, "█", renderData.statusColor)
     gui.text(CARD_W - 2, 2, "#" .. reactorData.number)
@@ -165,12 +155,12 @@ local function renderReactorPanel(reactorData)
     gui.text(3, 3, "███████", colors.white)
     for row = 4, 6 do
         gui.text(4, row, "▌▌ ▐▐", renderData.columnColor)
-        gui.text(6, row, renderData.coreSymbol, colors.orange)
+        gui.text(6, row, renderData.coreSymbol, colors.accentTemp)
     end
     gui.text(3, 7, "███████", colors.white)
 
     if reactorData.state == ReactorState.ERROR then
-        gui.text(12, 5, "DISCONNECTED", colors.red)
+        gui.text(12, 5, "DISCONNECTED", colors.statusError)
         gui.drawBuffer(pos.x, pos.y, buffer)
 
         return
@@ -181,20 +171,20 @@ local function renderReactorPanel(reactorData)
     gui.label(16, 2, renderData.levelLabel)
 
     -- данные одной колонкой
-    gui.text(12, 3, "Power", colors.gray);
+    gui.text(12, 3, "Power", colors.textMuted);
     gui.label(20, 3, renderData.powerLabel)
-    gui.text(12, 4, "Temp", colors.gray);
+    gui.text(12, 4, "Temp", colors.textMuted);
     gui.label(20, 4, renderData.tempLabel)
-    gui.text(12, 5, "Cool", colors.gray);
+    gui.text(12, 5, "Cool", colors.textMuted);
     gui.label(20, 5, renderData.coolantLabel)
-    gui.text(12, 6, "Rods", colors.gray);
+    gui.text(12, 6, "Rods", colors.textMuted);
     gui.label(20, 6, renderData.rodsLabel)
     -- бар топлива
     local barW = CARD_W - 18
     local fuelBar = renderData.fuelBar
-    gui.text(11, 7, "▕", colors.gray)
+    gui.text(11, 7, "▕", colors.textMuted)
     gui.bar(12, 7, barW, fuelBar.remaining, fuelBar.total, fuelBar.color)
-    gui.text(12 + barW, 7, "▏", colors.gray)
+    gui.text(12 + barW, 7, "▏", colors.textMuted)
     gui.label(13 + barW, 7, renderData.rodsPercentLabel)
 
     gui.drawBuffer(pos.x, pos.y, buffer)
@@ -208,14 +198,14 @@ local function renderSummary(stats)
     end
     local third = math.floor((W - 4) / 3) + 1
     -- значения фикс. ширины (%-Ns) затирают старое прямо в ячейках — без очистки всей строки, значит без мигания
-    gui.text(3, y, "Output", colors.gray)
-    gui.text(12, y, string.format("%-18s", formatter.toDisplaySize(stats.energy, 3, "Rf/t")), colors.lightgreen)
+    gui.text(3, y, "Output", colors.textMuted)
+    gui.text(12, y, string.format("%-18s", formatter.toDisplaySize(stats.energy, 3, "Rf/t")), colors.accentEnergy)
     if stats.byCoolingType.liquid > 0 then
-        gui.text(3 + third, y, "Coolant", colors.gray)
+        gui.text(3 + third, y, "Coolant", colors.textMuted)
         local label = getCoolantSummaryLabel(stats.coolant.available)
         gui.text(3 + third + 9, y, string.format("%-16s", label.text), label.color)
-        gui.text(3 + 2 * third, y, "Consumption", colors.gray)
-        gui.text(3 + 2 * third + 13, y, string.format("%-12s", stats.coolant.consumption .. " mB/s"), colors.cyan)
+        gui.text(3 + 2 * third, y, "Consumption", colors.textMuted)
+        gui.text(3 + 2 * third + 13, y, string.format("%-12s", stats.coolant.consumption .. " mB/s"), colors.accentCoolant)
     else
         gui.fill(3 + third, y, W - 3 - third, 1, " ")
     end
