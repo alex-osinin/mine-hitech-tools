@@ -19,8 +19,8 @@ local config = {
         }
     },
     screen = {
-        width = 104,
-        height = 31
+        width = 120,
+        height = 34
     },
     updateTimers = {
         reactors = 10,

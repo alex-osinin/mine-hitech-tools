@@ -27,24 +27,36 @@ function lib.setBackground(color)
 end
 
 local function resetColors()
-    gpu.setBackground(defaultBackground)
-    gpu.setForeground(defaultForeground)
+    lib.setBackground(defaultBackground)
+    lib.setForeground(defaultForeground)
 end
 
-function lib.init(w, h)
+-- загрузка кастомной палитры в 16 слотов GPU T3
+function lib.applyPalette(palette)
+    if not palette or not gpu.setPaletteColor then return end
+    for i = 1, math.min(#palette, 16) do
+        pcall(gpu.setPaletteColor, i - 1, palette[i])
+    end
+end
+
+function lib.init(w, h, defBackground, defForeground)
     term.clear()
+    defaultBackground = defBackground or defaultBackground;
+    defaultForeground = defForeground or defaultForeground;
     gpu.setResolution(w or 104, h or 31)
+    lib.applyPalette(colors.palette)
     resetColors()
+    gpu.fill(1, 1, w, h, " ")
 end
 
 function lib.text(x, y, text, color)
     lib.setForeground(color)
-    gpu.set(x, y, text)
+    gpu.set(x, y, text .. "")
 end
 
 function lib.label(x, y, label)
     lib.setForeground(label.color)
-    gpu.set(x, y, label.text)
+    gpu.set(x, y, label.text .. "")
 end
 
 function lib.rectangle(x, y, w, h, color) --filled rectangle
@@ -89,6 +101,23 @@ function lib.frame(x, y, w, h, color)
     gpu.fill(x + w, y + 1, 1, h - 1, "║")
 end
 
+-- одинарная рамка с заголовком, вписанным в верхнюю границу: ┌─ TITLE ──┐
+function lib.panel(x, y, w, h, title, frameColor, titleColor)
+    lib.setForeground(frameColor)
+    gpu.set(x, y, "┌")
+    gpu.set(x + w, y, "┐")
+    gpu.set(x, y + h, "└")
+    gpu.set(x + w, y + h, "┘")
+    gpu.fill(x + 1, y, w - 1, 1, "─")
+    gpu.fill(x + 1, y + h, w - 1, 1, "─")
+    gpu.fill(x, y + 1, 1, h - 1, "│")
+    gpu.fill(x + w, y + 1, 1, h - 1, "│")
+    if title then
+        lib.setForeground(titleColor or frameColor)
+        gpu.set(x + 2, y, " " .. title .. " ")
+    end
+end
+
 function lib.button(x, y, text, bcolor, tcolor)
     lib.setForeground(bcolor)
     local h = 2
@@ -96,6 +125,33 @@ function lib.button(x, y, text, bcolor, tcolor)
     lib.frame(x, y, w, h, bcolor)
     lib.setForeground(tcolor)
     gpu.set(x + 2, y + 1, text)
+end
+
+-- горизонтальный бар на восьмушках
+function lib.bar(x, y, w, value, maxValue, fillColor, emptyColor)
+    local frac = 0
+    if value and maxValue and maxValue > 0 then
+        frac = value / maxValue
+    end
+    if frac < 0 then frac = 0 elseif frac > 1 then frac = 1 end
+    local backup = currentBackground
+    lib.setForeground(emptyColor or colors.gray)
+    lib.setBackground(emptyColor or colors.gray)
+    gpu.fill(x, y, w, 1, " ")
+    local full = math.floor(frac * w)
+    lib.setForeground(fillColor)
+    if full > 0 then
+        gpu.fill(x, y, full, 1, "█")
+    end
+    if full < w then
+        local e = math.floor((frac * w - full) * 8 + 0.5)
+        if e >= 8 then
+            gpu.set(x + full, y, "█")
+        elseif e >= 1 then
+            gpu.set(x + full, y, ({ "▏", "▎", "▍", "▌", "▋", "▊", "▉" })[e])
+        end
+    end
+    lib.setBackground(backup)
 end
 
 function lib.progressBar(x, y, segmentCount, value, maxValue, prefix, suffix)
@@ -114,12 +170,22 @@ function lib.progressBar(x, y, segmentCount, value, maxValue, prefix, suffix)
 end
 
 function lib.allocateBuffer(w, h)
-    return { index = gpu.allocateBuffer(w, h), width = w, height = h }
+    local index = gpu.allocateBuffer(w, h)
+    -- ВАЖНО: у каждого VRAM-буфера своя палитра. Если не синхронизировать её с экранной,
+    -- bitblt перенесёт ИНДЕКСЫ цветов, и экран переинтерпретирует их своей палитрой
+    local prev = (gpu.getActiveBuffer and gpu.getActiveBuffer()) or 0
+    gpu.setActiveBuffer(index)
+    lib.applyPalette(colors.palette)
+    gpu.setActiveBuffer(prev)
+    return { index = index, width = w, height = h }
 end
 
-function lib.activateBuffer(buffer)
+function lib.activateBuffer(buffer, backgroundColor)
     gpu.setActiveBuffer(buffer.index)
-    lib.fill(1, 1, buffer.width, buffer.height, " ")
+    if backgroundColor then
+        lib.setBackground(backgroundColor)
+        lib.fill(1, 1, buffer.width, buffer.height, " ")
+    end
 end
 
 function lib.drawBuffer(destX, destY, buffer)

@@ -11,27 +11,11 @@ local W, H = config.screen.width, config.screen.height
 
 function renderer.initUI(log)
     log.info("Initializing UI...")
-    gui.init(W, H)
+    gui.init(W, H, colors.darkblue, colors.white)
 
-    local frameColor = 0x3F3ACA
-    -- рамка для реакторов
-    gui.frame(1, 1, W - 1, 19, frameColor)
-    gui.text(4, 1, "[Reactors]")
-
-    --local miniFrame W, H = 78, 31
-    -- рамка для сети
-    gui.frame(1, H - 10, math.floor(W / 2) - 1, 10, frameColor)
-    gui.text(4, 21, "[Info]")
-    gui.text(4, 23, "Network:")
-    gui.text(4, 25, "Energy:")
-    gui.text(4, 27, "Buffer:")
-    gui.text(4, 29, "TPS:")
-
-    -- рамка радара
-    gui.frame(math.floor(W / 2) + 1, H - 10, math.floor(W / 2) - 1, 10, frameColor)
-    gui.text(math.floor(W / 2) + 4, 21, "[Radar]")
-
-    gui.text(80, 31, "[made by orange_juice_]", frameColor)
+    local frameColor = 0x2B3A52
+    -- панель реакторов (заголовок вписан в рамку)
+    gui.panel(1, 1, W - 1, 21, "REACTORS", frameColor, colors.cyan)
     log.info("UI initialization completed")
 end
 
@@ -70,14 +54,12 @@ end
 
 function renderer.render(state)
     reactorRender.renderReactorSection(state)
-    renderEnergy(state)
-    renderTPS(state)
-    radarRender.renderRadarSection(state)
+    -- энергия / TPS / радар пока не отрисовываем — в работе только панель реакторов
 end
 
 function renderer.debug(stage)
     if config.dev and config.dev.enabled then
-        gui.text(W - 8, 2, string.format("%-7s", stage), colors.red)
+        gui.text(W - 12, H, string.format("%-10s", stage), colors.red)
     end
 end
 

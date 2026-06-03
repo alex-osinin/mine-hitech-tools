@@ -3,44 +3,55 @@ local config = require(_G.PROGRAM .. "_config")
 local gui = require("ui.monitor.monitor_gui")
 
 local reactorService = require("service.reactor_service")
+local ReactorState = reactorService.ReactorState
+local CoolingType = reactorService.CoolingType
 
 local colors = require("util.colors")
 local formatter = require("util.formatter")
 
-local buffer = gui.allocateBuffer(26, 6)
+local W = config.screen.width
 
+-- карточка реактора (буфер)
+local CARD_W, CARD_H = 38, 8
+local buffer = gui.allocateBuffer(CARD_W, CARD_H)
+
+-- сетка 3×2 внутри рамки реакторов
 local startRenderPositions = {
-    { x = 8,  y = 3 },
-    { x = 40, y = 3 },
-    { x = 72, y = 3 },
-    { x = 8,  y = 11 },
-    { x = 40, y = 11 },
-    { x = 72, y = 11 }
+    { x = 3, y = 3 }, { x = 42, y = 3 }, { x = 81, y = 3 },
+    { x = 3, y = 12 }, { x = 42, y = 12 }, { x = 81, y = 12 }
 }
 renderer.reactorPanelStartPositions = startRenderPositions
 
 local function getStateRenderInfo(state)
-    if state == reactorService.ReactorState.WORKING then
-        return { text = "[ON]", color = colors.green }, "▒"
-    elseif state == reactorService.ReactorState.IDLE then
-        return { text = "[ON]", color = colors.green }, " "
-    elseif state == reactorService.ReactorState.STOPPED then
-        return { text = "[OFF]", color = colors.gray }, " "
-    elseif state == reactorService.ReactorState.STOPPED_MANUALLY then
-        return { text = "[OFF]*", color = colors.gray }, " "
+    if state == ReactorState.WORKING then
+        return colors.green, "▒"
+    elseif state == ReactorState.IDLE then
+        return colors.yellow, " "
+    elseif state == ReactorState.STOPPED
+        or state == ReactorState.STOPPED_MANUALLY then
+        return colors.gray, " "
     else
-        return { text = "[ERR]", color = colors.red }, "X"
+        return colors.red, "X"
     end
 end
 
 local function getCoolingTypeLabel(cooling)
     local coolingType = cooling and cooling.type or "-"
-    if coolingType == reactorService.CoolingType.LIQ then
+    if coolingType == CoolingType.LIQ then
         return { text = "LIQ", color = colors.cyan }
-    elseif coolingType == reactorService.CoolingType.AIR then
+    elseif coolingType == CoolingType.AIR then
         return { text = "AIR", color = colors.lightblue }
     else
         return { text = "", color = colors.lightred }
+    end
+end
+
+local function getCoolantLabel(cooling)
+    local coolingType = cooling and cooling.type or "-"
+    if coolingType == CoolingType.LIQ then
+        return { text = (cooling.consume or "-") .. " mB/s", color = colors.cyan }
+    else
+        return { text = "-", color = colors.gray }
     end
 end
 
@@ -50,14 +61,17 @@ local function getCoolantSummaryLabel(currentLiquidCount)
 
     local stateColor
     local coolingSettings = config.reactors.cooling.limits
+    local warning = false
     if currentLiquidCount < coolingSettings.minimum then
         stateColor = colors.red
+        warning = true
     elseif currentLiquidCount < coolingSettings.recommended then
         stateColor = colors.yellow
+        warning = true
     else
         stateColor = colors.cyan
     end
-    local text = string.format("%-15s", currentLiquidCountStr .. "/" .. recommendedLiquidCountStr)
+    local text = currentLiquidCountStr .. "/" .. recommendedLiquidCountStr .. (warning and " ⚠" or "")
     return { text = text, color = stateColor }
 end
 
@@ -69,72 +83,141 @@ local function formatFuelRemainingTime(seconds)
     return string.format("%dh %02dm", t.hour, t.min)
 end
 
---Example:
---  AIR    [ON]   LVL:1
---███████  Power: 120 kRf/t
--- ▌▌▒▐▐   Temp:  9998 °C
--- ▌▌▒▐▐   Cool:  1200 mB/s
--- ▌▌▒▐▐   Rods:  0h 15m
---███████  [======·········]
-local function renderReactorPanel(reactorData)
-    local pos = startRenderPositions[reactorData.number]
+-- данные карточки из состояния реактора
+local function deriveCard(reactorData)
+    local statusColor, coreSymbol = getStateRenderInfo(reactorData.state)
+    if reactorData.state == ReactorState.ERROR then
+        --local undefinedValueLabel = { text = "-", color = colors.gray }
+        --local emptyValueLabel = { text = " ", color = colors.gray }
+        return {
+            statusColor = statusColor,
+            columnColor = colors.red,
+            coreSymbol = coreSymbol,
+            --        coolingTypeLabel = emptyValueLabel,
+            --        levelLabel = undefinedValueLabel,
+            --        powerLabel = undefinedValueLabel,
+            --        coolantLabel = undefinedValueLabel,
+            --        tempLabel = undefinedValueLabel,
+            --        rodsLabel = undefinedValueLabel,
+            --        rodsPercentLabel = emptyValueLabel,
+            --        fuelBar = { color = colors.green }
+        }
+    end
 
-    local statusLabel, coreSymbol = getStateRenderInfo(reactorData.state)
-    local coolingTypeLabel = getCoolingTypeLabel(reactorData.cooling)
     local level = reactorData.level or "-"
     local power = reactorData.energy and formatter.toDisplaySize(reactorData.energy, 2, "Rf/t") or "-"
-    local coolant = reactorData.cooling and reactorData.cooling.consume or "-"
-    local temp = reactorData.temperature and reactorData.temperature .. " °C" or "-"
-    local fuelRemainingTime = formatFuelRemainingTime(reactorData.fuel and reactorData.fuel.remainingTime)
-
-    gui.activateBuffer(buffer)
-
-    gui.label(10, 1, statusLabel)
-    gui.text(17, 1, "LVL:" .. level)
-    gui.label(3, 1, coolingTypeLabel)
-
-    gui.text(10, 2, "Power:")
-    gui.text(17, 2, power, colors.lightgreen)
-    gui.text(10, 3, "Temp:")
-    gui.text(17, 3, temp, colors.orange)
-    if reactorData.cooling and reactorData.cooling.type == reactorService.CoolingType.LIQ then
-        gui.text(10, 4, "Cool:")
-        gui.text(17, 4, coolant .. " mB/s", colors.cyan)
+    local temperature = reactorData.temperature and (reactorData.temperature .. " °C") or "-"
+    local time = formatFuelRemainingTime(reactorData.fuel and reactorData.fuel.remainingTime)
+    local coolingTypeLabel = getCoolingTypeLabel(reactorData.cooling)
+    -- цвет температуры по значению
+    local tempColor = colors.gray
+    if reactorData.temperature and reactorData.temperature > 0 then
+        tempColor = reactorData.temperature >= 8000 and colors.red or colors.orange
     end
-    gui.text(10, 5, "Rods:")
-    gui.text(17, 5, fuelRemainingTime)
 
-    gui.text(1, 2, "███████")
-    gui.text(2, 3, "▌▌ ▐▐", coolingTypeLabel.color)
-    gui.text(2, 4, "▌▌ ▐▐", coolingTypeLabel.color)
-    gui.text(2, 5, "▌▌ ▐▐", coolingTypeLabel.color)
-    gui.text(1, 6, "███████")
+    -- бар = остаток жизненного цикла стержней в %
+    local total = reactorData.fuel and reactorData.fuel.totalTime
+    local remaining = reactorData.fuel and reactorData.fuel.remainingTime
+    local pct = (total and total > 0 and remaining) and math.floor(remaining / total * 100) or nil
+    local fuelColor = colors.green
+    if pct then
+        if pct < 10 then
+            fuelColor = colors.red
+        elseif pct < 25 then
+            fuelColor = colors.yellow
+        end
+    end
+    local rodsPercent = pct and (pct .. "%") or "-"
 
-    local elapsedTime = reactorData.fuel and (reactorData.fuel.totalTime or 0) - (reactorData.fuel.remainingTime or 0)
-    gui.progressBar(10, 6, 15, elapsedTime, reactorData.fuel and reactorData.fuel.totalTime, "[", "]")
+    return {
+        statusColor = statusColor,
+        columnColor = coolingTypeLabel.color,
+        coreSymbol = coreSymbol,
+        coolingTypeLabel = coolingTypeLabel,
+        levelLabel = { text = level, color = colors.white },
+        powerLabel = { text = power, color = colors.lightgreen },
+        coolantLabel = getCoolantLabel(reactorData.cooling),
+        tempLabel = { text = temperature, color = tempColor },
+        rodsLabel = { text = time, color = colors.white },
+        rodsPercentLabel = { text = rodsPercent, color = colors.gray },
+        fuelBar = { remaining = remaining, total = total, color = fuelColor }
+    }
+end
 
-    gui.text(4, 3, coreSymbol, colors.brightorange)
-    gui.text(4, 4, coreSymbol, colors.brightorange)
-    gui.text(4, 5, coreSymbol, colors.brightorange)
+-- Пример карточки:
+-- ▌   AIR    LVL 6
+-- ▌ ███████  Power   120 kRf/t
+-- ▌  ▌▌▒▐▐   Temp    9998 °C
+-- ▌  ▌▌▒▐▐   Cool    -
+-- ▌  ▌▌▒▐▐   Rods    0h 15m
+-- ▌ ███████  ████████████░░░▏ 62%
+local function renderReactorPanel(reactorData)
+    local pos = startRenderPositions[reactorData.number]
+    if not pos then return end
+    local renderData = deriveCard(reactorData)
+
+    gui.activateBuffer(buffer, colors.darkblue2)
+    -- статус-полоса
+    gui.fill(1, 1, 1, CARD_H, "█", renderData.statusColor)
+    gui.text(CARD_W - 2, 2, "#" .. reactorData.number)
+
+    -- графика реактора
+    gui.text(3, 3, "███████", colors.white)
+    for row = 4, 6 do
+        gui.text(4, row, "▌▌ ▐▐", renderData.columnColor)
+        gui.text(6, row, renderData.coreSymbol, colors.orange)
+    end
+    gui.text(3, 7, "███████", colors.white)
+
+    if reactorData.state == ReactorState.ERROR then
+        gui.text(12, 5, "DISCONNECTED", colors.red)
+        gui.drawBuffer(pos.x, pos.y, buffer)
+
+        return
+    end
+    -- заголовок
+    gui.label(5, 2, renderData.coolingTypeLabel)
+    gui.text(12, 2, "LVL", colors.white)
+    gui.label(16, 2, renderData.levelLabel)
+
+    -- данные одной колонкой
+    gui.text(12, 3, "Power", colors.gray);
+    gui.label(20, 3, renderData.powerLabel)
+    gui.text(12, 4, "Temp", colors.gray);
+    gui.label(20, 4, renderData.tempLabel)
+    gui.text(12, 5, "Cool", colors.gray);
+    gui.label(20, 5, renderData.coolantLabel)
+    gui.text(12, 6, "Rods", colors.gray);
+    gui.label(20, 6, renderData.rodsLabel)
+    -- бар топлива
+    local barW = CARD_W - 18
+    local fuelBar = renderData.fuelBar
+    gui.text(11, 7, "▕", colors.gray)
+    gui.bar(12, 7, barW, fuelBar.remaining, fuelBar.total, fuelBar.color)
+    gui.text(12 + barW, 7, "▏", colors.gray)
+    gui.label(13 + barW, 7, renderData.rodsPercentLabel)
 
     gui.drawBuffer(pos.x, pos.y, buffer)
 end
 
 local function renderSummary(stats)
+    local y = 21
     if stats.total == 0 then
+        gui.fill(2, y, W - 3, 1, " ")
         return
     end
-    gui.text(8, 19, "Output:")
-    gui.text(16, 19, string.format("%-15s", formatter.toDisplaySize(stats.energy, 3, "Rf/t")), colors.lightgreen)
+    local third = math.floor((W - 4) / 3) + 1
+    -- значения фикс. ширины (%-Ns) затирают старое прямо в ячейках — без очистки всей строки, значит без мигания
+    gui.text(3, y, "Output", colors.gray)
+    gui.text(12, y, string.format("%-18s", formatter.toDisplaySize(stats.energy, 3, "Rf/t")), colors.lightgreen)
     if stats.byCoolingType.liquid > 0 then
-        gui.text(40, 19, "Coolant:")
-        local coolantInfoLabel = getCoolantSummaryLabel(stats.coolant.available)
-        gui.label(49, 19, coolantInfoLabel)
-
-        gui.text(72, 19, "Consumption:")
-        gui.text(85, 19, string.format("%-15s", stats.coolant.consumption .. " mB/s"), colors.cyan)
+        gui.text(3 + third, y, "Coolant", colors.gray)
+        local label = getCoolantSummaryLabel(stats.coolant.available)
+        gui.text(3 + third + 9, y, string.format("%-16s", label.text), label.color)
+        gui.text(3 + 2 * third, y, "Consumption", colors.gray)
+        gui.text(3 + 2 * third + 13, y, string.format("%-12s", stats.coolant.consumption .. " mB/s"), colors.cyan)
     else
-        gui.fill(40, 19, 64, 1, " ")
+        gui.fill(3 + third, y, W - 3 - third, 1, " ")
     end
 end
 
