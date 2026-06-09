@@ -16,11 +16,11 @@ local CARD_W, CARD_H = 38, 8
 local buffer = gui.allocateBuffer(CARD_W, CARD_H)
 
 -- сетка 3×2 внутри рамки реакторов
-local startRenderPositions = {
-    { x = 3, y = 3 }, { x = 42, y = 3 }, { x = 81, y = 3 },
-    { x = 3, y = 12 }, { x = 42, y = 12 }, { x = 81, y = 12 }
+local cardRenderPositions = {
+    { x = 3, y = 5 }, { x = 42, y = 5 }, { x = 81, y = 5 },
+    { x = 3, y = 14 }, { x = 42, y = 14 }, { x = 81, y = 14 }
 }
-renderer.reactorPanelStartPositions = startRenderPositions
+renderer.reactorCardPositions = cardRenderPositions
 
 local function getStateRenderInfo(state)
     if state == ReactorState.WORKING then
@@ -142,7 +142,7 @@ end
 -- ▌  ▌▌▒▐▐   Rods    0h 15m
 -- ▌ ███████  ████████████░░░▏ 62%
 local function renderReactorPanel(reactorData)
-    local pos = startRenderPositions[reactorData.number]
+    local pos = cardRenderPositions[reactorData.number]
     if not pos then return end
     local renderData = deriveCard(reactorData)
 
@@ -191,9 +191,9 @@ local function renderReactorPanel(reactorData)
 end
 
 local function renderSummary(stats)
-    local y = 21
+    local y = 23
     if stats.total == 0 then
-        gui.fill(2, y, W - 3, 1, " ")
+        gui.clear(2, y, W - 3, 1)
         return
     end
     local third = math.floor((W - 4) / 3) + 1
@@ -207,7 +207,7 @@ local function renderSummary(stats)
         gui.text(3 + 2 * third, y, "Consumption", colors.textMuted)
         gui.text(3 + 2 * third + 13, y, string.format("%-12s", stats.coolant.consumption .. " mB/s"), colors.accentCoolant)
     else
-        gui.fill(3 + third, y, W - 3 - third, 1, " ")
+        gui.clear(3 + third, y, W - 3 - third, 1)
     end
 end
 
@@ -219,5 +219,10 @@ function renderer.renderReactorSection(state)
         renderReactorPanel(data[i])
     end
 end
+
+-- доступ для других вью (детальный экран) и тач-хита по карточкам
+renderer.deriveCard = deriveCard
+renderer.CARD_W = CARD_W
+renderer.CARD_H = CARD_H
 
 return renderer

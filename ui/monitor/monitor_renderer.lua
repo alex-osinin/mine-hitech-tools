@@ -1,20 +1,24 @@
+-- Роутер вью: рисует хром (таб-бар, подвал) и диспатчит на активную вью
 local renderer = {}
+
 local config = require(_G.PROGRAM .. "_config")
 local gui = require("ui.monitor.monitor_gui")
-local reactorRender = require("ui.monitor.reactor_renderer")
-local radarRender = require("ui.monitor.radar_renderer")
-
 local colors = require("util.colors")
-local formatter = require("util.formatter")
+
+local tabBar = require("ui.monitor.components.tab_bar")
 
 local W, H = config.screen.width, config.screen.height
+
+-- реестр вью (id → модуль). touch_handler берёт его отсюда.
+local views = {
+    overview = require("ui.monitor.views.overview"),
+    detail   = require("ui.monitor.views.reactor_detail"),
+}
+renderer.views = views
 
 function renderer.initUI(log)
     log.info("Initializing UI...")
     gui.init(W, H, colors.bgScreen, colors.textPrimary)
-
-    -- панель реакторов (заголовок вписан в рамку)
-    gui.panel(1, 1, W - 1, 21, "REACTORS", colors.bgFrame, colors.teal)
     log.info("UI initialization completed")
 end
 
@@ -22,43 +26,41 @@ function renderer.cleanup()
     gui.cleanup()
 end
 
-local function renderEnergy(state)
-    local networkName = string.format("%-37s", state.energy.networkName or "")
-    gui.text(13, 23, networkName)
-    local formattedEnergy = string.format("%-37s", formatter.toDisplaySize(state.energy.input, 3, "Rf/t"))
-    gui.text(13, 25, formattedEnergy, colors.accentEnergy)
-    local formattedBuffer = string.format("%-37s", formatter.toDisplaySize(state.energy.buffer, 3, "Rf"))
-    gui.text(13, 27, formattedBuffer, colors.accentEnergy)
+local function drawFooter()
+    gui.rectangle(1, H, W, 1, colors.bgCard)
+    local author = "made by " .. (config.user and config.user.nick or "")
+    gui.text(W - #author - 1, H, author, colors.textMuted, colors.bgCard)
 end
 
-local function getTPSLabel(tps)
-    local formattedTps = tps and string.format("%-37.1f", tps) or "-"
-    local color
-    if not tps then
-        color = colors.white
-    elseif tps > 15 then
-        color = colors.statusOn
-    elseif tps > 10 then
-        color = colors.statusWarn
-    else
-        color = colors.statusError
-    end
-    return { text = formattedTps, color = color }
-end
-
-local function renderTPS(state)
-    local tpsLabel = getTPSLabel(state.tps.value)
-    gui.label(13, 29, tpsLabel)
+local function drawTPS(tps)
+    local tpsVal = tps and tps.value
+    local tpsStr = tpsVal and string.format("TPS %.1f", tpsVal) or "TPS --.-"
+    local tpsColor = tpsVal and tpsVal >= 18 and colors.statusOn
+            or tpsVal and tpsVal >= 12 and colors.statusWarn
+            or colors.statusError
+    gui.text(W - #tpsStr - 1, 1, tpsStr, tpsColor, colors.bgCard)
 end
 
 function renderer.render(state)
-    reactorRender.renderReactorSection(state)
-    -- энергия / TPS / радар пока не отрисовываем — в работе только панель реакторов
+    state.ui = state.ui or { activeView = "overview", viewChanged = true }
+    local view = views[state.ui.activeView] or views.overview
+
+    if state.ui.viewChanged then
+        gui.rectangle(1, 2, W, H - 2, colors.bgScreen)
+        tabBar.draw(state.ui.activeView)
+        drawFooter()
+        view.onEnter(state)
+        state.ui.viewChanged = false
+    end
+    -- TPS в правом верхнем углу таб-бара (всегда обновляем)
+    drawTPS(state.tps)
+
+    view.render(state)
 end
 
 function renderer.debug(stage)
     if config.dev and config.dev.enabled then
-        gui.text(W - 12, H, string.format("%-10s", stage), colors.statusError)
+        gui.text(2, H, string.format("%-8s", stage), colors.statusError)
     end
 end
 

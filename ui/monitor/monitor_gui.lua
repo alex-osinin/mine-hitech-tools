@@ -49,19 +49,35 @@ function lib.init(w, h, defBackground, defForeground)
     gpu.fill(1, 1, w, h, " ")
 end
 
-function lib.text(x, y, text, color)
+function lib.text(x, y, text, color, bg)
     lib.setForeground(color)
-    gpu.set(x, y, text .. "")
+    if bg then
+        local prev = currentBackground
+        lib.setBackground(bg)
+        gpu.set(x, y, text .. "")
+        lib.setBackground(prev)
+    else
+        gpu.set(x, y, text .. "")
+    end
 end
 
-function lib.label(x, y, label)
+function lib.label(x, y, label, bg)
     lib.setForeground(label.color)
-    gpu.set(x, y, label.text .. "")
+    if bg then
+        local prev = currentBackground
+        lib.setBackground(bg)
+        gpu.set(x, y, label.text .. "")
+        lib.setBackground(prev)
+    else
+        gpu.set(x, y, label.text .. "")
+    end
 end
 
-function lib.rectangle(x, y, w, h, color) --filled rectangle
+function lib.rectangle(x, y, w, h, color)
+    local prev = currentBackground
     lib.setBackground(color)
     gpu.fill(x, y, w, h, ' ')
+    lib.setBackground(prev)
 end
 
 function lib.hFill(x, y, w, symbol, color)
@@ -74,9 +90,29 @@ function lib.vFill(x, y, h, symbol, color)
     gpu.fill(x, y, x, h, symbol)
 end
 
-function lib.fill(x, y, w, h, symbol, color)
-    lib.setForeground(color)
-    gpu.fill(x, y, w, h, symbol)
+-- заливка ГЛИФОМ: fg — цвет символа, bg (опц.) — разовый фон под ним
+function lib.fill(x, y, w, h, symbol, fg, bg)
+    lib.setForeground(fg)
+    if bg then
+        local prev = currentBackground
+        lib.setBackground(bg)
+        gpu.fill(x, y, w, h, symbol)
+        lib.setBackground(prev)
+    else
+        gpu.fill(x, y, w, h, symbol)
+    end
+end
+
+-- стереть прямоугольник пробелами; bg (опц.) — разовый фон, иначе текущий ambient
+function lib.clear(x, y, w, h, bg)
+    if bg then
+        local prev = currentBackground
+        lib.setBackground(bg)
+        gpu.fill(x, y, w, h, " ")
+        lib.setBackground(prev)
+    else
+        gpu.fill(x, y, w, h, " ")
+    end
 end
 
 function lib.line(type, x, y, h, color) -- линия горизонт/вертикаль
@@ -89,29 +125,32 @@ function lib.line(type, x, y, h, color) -- линия горизонт/верт�
     end
 end
 
-function lib.frame(x, y, w, h, color)
+function lib.frame(x, y, w, h, color) -- w,h — размеры в ячейках (как rectangle)
+    local x2, y2 = x + w - 1, y + h - 1
     lib.setForeground(color)
     gpu.set(x, y, "╔")
-    gpu.set(x, y + h, "╚")
-    gpu.set(x + w, y, "╗")
-    gpu.set(x + w, y + h, "╝")
-    gpu.fill(x + 1, y, w - 1, 1, "═")
-    gpu.fill(x + 1, y + h, w - 1, 1, "═")
-    gpu.fill(x, y + 1, 1, h - 1, "║")
-    gpu.fill(x + w, y + 1, 1, h - 1, "║")
+    gpu.set(x, y2, "╚")
+    gpu.set(x2, y, "╗")
+    gpu.set(x2, y2, "╝")
+    gpu.fill(x + 1, y, w - 2, 1, "═")
+    gpu.fill(x + 1, y2, w - 2, 1, "═")
+    gpu.fill(x, y + 1, 1, h - 2, "║")
+    gpu.fill(x2, y + 1, 1, h - 2, "║")
 end
 
 -- одинарная рамка с заголовком, вписанным в верхнюю границу: ┌─ TITLE ──┐
+-- w,h — размеры в ячейках (как rectangle)
 function lib.panel(x, y, w, h, title, frameColor, titleColor)
+    local x2, y2 = x + w - 1, y + h - 1
     lib.setForeground(frameColor)
     gpu.set(x, y, "┌")
-    gpu.set(x + w, y, "┐")
-    gpu.set(x, y + h, "└")
-    gpu.set(x + w, y + h, "┘")
-    gpu.fill(x + 1, y, w - 1, 1, "─")
-    gpu.fill(x + 1, y + h, w - 1, 1, "─")
-    gpu.fill(x, y + 1, 1, h - 1, "│")
-    gpu.fill(x + w, y + 1, 1, h - 1, "│")
+    gpu.set(x2, y, "┐")
+    gpu.set(x, y2, "└")
+    gpu.set(x2, y2, "┘")
+    gpu.fill(x + 1, y, w - 2, 1, "─")
+    gpu.fill(x + 1, y2, w - 2, 1, "─")
+    gpu.fill(x, y + 1, 1, h - 2, "│")
+    gpu.fill(x2, y + 1, 1, h - 2, "│")
     if title then
         lib.setForeground(titleColor or frameColor)
         gpu.set(x + 2, y, " " .. title .. " ")
@@ -122,7 +161,7 @@ function lib.button(x, y, text, bcolor, tcolor)
     lib.setForeground(bcolor)
     local h = 2
     local w = 3 + unicode.len(text)
-    lib.frame(x, y, w, h, bcolor)
+    lib.frame(x, y, w + 1, h + 1, bcolor) -- frame теперь в размерах: +1 к старым offset'ам
     lib.setForeground(tcolor)
     gpu.set(x + 2, y + 1, text)
 end
@@ -184,7 +223,7 @@ function lib.activateBuffer(buffer, backgroundColor)
     gpu.setActiveBuffer(buffer.index)
     if backgroundColor then
         lib.setBackground(backgroundColor)
-        lib.fill(1, 1, buffer.width, buffer.height, " ")
+        lib.clear(1, 1, buffer.width, buffer.height)
     end
 end
 

@@ -65,7 +65,13 @@ local state = {
         buffer = 0
     },
     tps = { value = 0 },
-    radar = { players = {} }
+    radar = { players = {} },
+    ui = {
+        activeView = "overview",
+        previousView = nil,
+        viewChanged = true,
+        detailReactor = nil
+    }
 }
 
 local function initComponents()
